@@ -22,9 +22,6 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
-    "extra": {
-      "FIREBASE_API_KEY": "AIzaSyDW-bg1zam9YAf7-4lYheUAohcr4kZr4jg"
-    },
     "plugins": [
       "expo-router",
       [
