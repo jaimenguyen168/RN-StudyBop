@@ -25,6 +25,8 @@ import trophy from "@/assets/images/trophy.png";
 import wave from "@/assets/images/wave.png";
 import wheels from "@/assets/images/wheels.png";
 import highOnCouch from "@/assets/images/high-on-couch.png";
+import hello1 from "@/assets/images/hello1.png";
+import hello2 from "@/assets/images/hello2.png";
 
 export default {
   banner1,
@@ -54,4 +56,6 @@ export default {
   wave,
   wheels,
   highOnCouch,
+  hello1,
+  hello2,
 };

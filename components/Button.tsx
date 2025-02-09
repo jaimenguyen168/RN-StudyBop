@@ -12,7 +12,7 @@ interface Props {
 
 const Button = ({
   title,
-  textStyle = "text-white text-md",
+  textStyle = "text-white text-xl",
   buttonStyle,
   shadowStyle,
   loading = false,
@@ -28,7 +28,7 @@ const Button = ({
         {loading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text className={`font-nunitoBold ${textStyle}`}>{title}</Text>
+          <Text className={`font-rubikMedium ${textStyle}`}>{title}</Text>
         )}
       </TouchableOpacity>
     </View>

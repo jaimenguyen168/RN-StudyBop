@@ -1,25 +1,27 @@
 import {
   View,
   Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import React, { useState } from "react";
 import images from "@/constants/images";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import FormField from "@/components/FormField";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import Button from "@/components/Button";
 
-const Login = () => {
+const Register = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    name: "",
   });
 
   const handleOnChangeText = (name: string, value: string) => {
@@ -29,13 +31,11 @@ const Login = () => {
     });
   };
 
-  const handleLogin = async () => {};
+  const handleSignUp = async () => {};
 
-  const handleSignInWithApple = async () => {};
-
-  const handleSignInWithFacebook = async () => {};
-
-  const handleSignInWithGoogle = async () => {};
+  const handleBackPress = () => {
+    router.back();
+  };
 
   return (
     <KeyboardAvoidingView
@@ -45,44 +45,33 @@ const Login = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView>
           <View className="flex-1 w-full items-center justify-center">
+            <TouchableOpacity
+              onPress={handleBackPress}
+              className="absolute top-20 left-8 p-3 rounded-full border border-ink-gray"
+            >
+              <Ionicons name="chevron-back" size={24} color="#78746D" />
+            </TouchableOpacity>
+
             <Image
-              source={images.hello1}
+              source={images.hello2}
               className="w-[320px] mt-12"
               resizeMode="contain"
             />
 
             <View className="flex w-full items-center gap-4 -mt-4">
-              <Text className="text-3xl font-rubikSemiBold">Log In</Text>
+              <Text className="text-3xl font-rubikSemiBold">Sign Up</Text>
               <Text className="text-lg font-rubik text-center text-ink-darkGray">
-                Login With Social Networks
+                Create A New Account
               </Text>
-              <View className="flex-row gap-6">
-                <SocialLogin
-                  icon={<FontAwesome name="apple" size={48} color="#65AAEA" />}
-                  onPress={handleSignInWithApple}
-                />
-
-                <SocialLogin
-                  icon={
-                    <FontAwesome
-                      name="facebook-square"
-                      size={48}
-                      color="#65AAEA"
-                    />
-                  }
-                  onPress={handleSignInWithFacebook}
-                />
-
-                <SocialLogin
-                  icon={
-                    <FontAwesome name="google-plus" size={48} color="#65AAEA" />
-                  }
-                  onPress={handleSignInWithGoogle}
-                />
-              </View>
             </View>
 
             <View className="px-8 py-12 gap-6 w-full">
+              <FormField
+                placeholder="Name"
+                value={form.name}
+                onChangeText={(text) => handleOnChangeText("name", text)}
+              />
+
               <FormField
                 placeholder="Email"
                 value={form.email}
@@ -96,24 +85,22 @@ const Login = () => {
                 onChangeText={(text) => handleOnChangeText("password", text)}
               />
 
-              <Link href={"/(auth)/forgot-password"}>
-                <Text className="text-lg font-rubikSemiBold text-ink-gray text-center">
-                  Forgot Password?
-                </Text>
-              </Link>
+              <Button
+                title="Register"
+                onPress={handleSignUp}
+                buttonStyle="mt-6"
+              />
 
-              <Button title="Log In" onPress={handleLogin} />
-
-              <Link href={"/(auth)/register"}>
+              <Pressable onPress={handleBackPress}>
                 <Text className="text-center">
                   <Text className="text-ink-darkGray font-rubik">
-                    Don't have an account?{" "}
+                    Already have an account?{" "}
                   </Text>
                   <Text className="text-lg font-rubikMedium text-primary">
-                    Sign Up!
+                    Login!
                   </Text>
                 </Text>
-              </Link>
+              </Pressable>
             </View>
           </View>
         </ScrollView>
@@ -121,12 +108,4 @@ const Login = () => {
     </KeyboardAvoidingView>
   );
 };
-export default Login;
-
-const SocialLogin = ({ icon, onPress }: { icon: any; onPress: () => void }) => {
-  return (
-    <TouchableOpacity onPress={onPress} className="items-center justify-center">
-      {icon}
-    </TouchableOpacity>
-  );
-};
+export default Register;
