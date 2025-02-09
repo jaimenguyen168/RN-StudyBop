@@ -53,9 +53,7 @@ const Login = () => {
 
             <View className="flex w-full items-center gap-4 -mt-4">
               <Text className="text-3xl font-rubikSemiBold">Log In</Text>
-              <Text className="text-lg font-rubik text-center text-ink-darkGray">
-                Login With Social Networks
-              </Text>
+              <Text className="text-lg font-rubik text-center text-ink-darkGray"></Text>
               <View className="flex-row gap-6">
                 <SocialLogin
                   icon={<FontAwesome name="apple" size={48} color="#65AAEA" />}
