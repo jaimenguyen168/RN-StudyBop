@@ -9,6 +9,7 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import images from "@/constants/images";
@@ -37,6 +38,8 @@ const Register = () => {
 
     if (result.success) {
       router.replace("/(root)/(tabs)/home");
+    } else {
+      Alert.alert("Error", result.error);
     }
   };
 
@@ -50,7 +53,7 @@ const Register = () => {
       className="flex-1"
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View className="flex-1 w-full items-center justify-center">
             <TouchableOpacity
               onPress={handleBackPress}

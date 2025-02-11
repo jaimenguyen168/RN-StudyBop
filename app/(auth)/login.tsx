@@ -8,13 +8,15 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import images from "@/constants/images";
 import { FontAwesome } from "@expo/vector-icons";
 import FormField from "@/components/FormField";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import Button from "@/components/Button";
+import { signIn } from "@/libs/firebase";
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -29,7 +31,15 @@ const Login = () => {
     });
   };
 
-  const handleLogin = async () => {};
+  const handleLogin = async () => {
+    const result = await signIn(form.email, form.password);
+
+    if (result.success) {
+      router.replace("/(root)/(tabs)/home");
+    } else {
+      Alert.alert("Error", result.error);
+    }
+  };
 
   const handleSignInWithApple = async () => {};
 
@@ -43,7 +53,7 @@ const Login = () => {
       className="flex-1"
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View className="flex-1 w-full items-center justify-center">
             <Image
               source={images.hello1}
