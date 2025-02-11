@@ -2,6 +2,7 @@ import { SplashScreen, Stack } from "expo-router";
 import "../global.css";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
+import AuthProvider from "@/contexts/firebase-auth";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -25,9 +26,11 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(auth)" />
-    </Stack>
+    <AuthProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+      </Stack>
+    </AuthProvider>
   );
 }

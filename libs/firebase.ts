@@ -1,17 +1,6 @@
 import { auth } from "@/configs/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "@firebase/auth";
-
-interface SuccessResult<T> {
-  success: true;
-  data: T;
-}
-
-interface ErrorResult {
-  success: false;
-  error: string;
-}
-
-type Result<T = any> = SuccessResult<T> | ErrorResult;
+import { Result } from "@/types/util";
 
 export const signUp = async (
   name: string,
