@@ -25,7 +25,7 @@ export default {
       favicon: "./assets/images/favicon.png",
     },
     extra: {
-      firebaseApiKey: process.env.FIREBASE_API_KEY, // 🔒 Now it's securely loaded
+      firebaseApiKey: process.env.FIREBASE_API_KEY,
     },
     plugins: [
       "expo-router",
