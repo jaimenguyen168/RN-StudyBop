@@ -3,10 +3,11 @@ import { initializeApp } from "firebase/app";
 // @ts-ignore
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
+  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
   authDomain: "studybop-a7a42.firebaseapp.com",
   projectId: "studybop-a7a42",
   storageBucket: "studybop-a7a42.firebasestorage.app",

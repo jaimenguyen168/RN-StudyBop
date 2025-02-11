@@ -16,6 +16,7 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import FormField from "@/components/FormField";
 import { Link, router } from "expo-router";
 import Button from "@/components/Button";
+import { signUp } from "@/libs/firebase";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -31,7 +32,13 @@ const Register = () => {
     });
   };
 
-  const handleSignUp = async () => {};
+  const handleSignUp = async () => {
+    const result = await signUp(form.name, form.email, form.password);
+
+    if (result.success) {
+      router.replace("/(root)/(tabs)/home");
+    }
+  };
 
   const handleBackPress = () => {
     router.back();
