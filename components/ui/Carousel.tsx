@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useRef, useState } from "react";
 import { onboardingContent } from "@/constants/static";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 
 export type CarouselProps = {
   title: string;

@@ -14,9 +14,9 @@ import {
 import React, { useState } from "react";
 import images from "@/constants/images";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import FormField from "@/components/FormField";
+import FormField from "@/components/ui/FormField";
 import { Link, router } from "expo-router";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { signUp } from "@/libs/firebase";
 
 const Register = () => {

@@ -1,7 +1,7 @@
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import React, { useRef, useState } from "react";
 import { onboardingContent } from "@/constants/static";
-import Carousel, { CarouselProps } from "@/components/Carousel";
+import Carousel, { CarouselProps } from "@/components/ui/Carousel";
 import { router } from "expo-router";
 
 const Onboarding = () => {

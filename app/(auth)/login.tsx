@@ -13,9 +13,9 @@ import {
 import React, { useState } from "react";
 import images from "@/constants/images";
 import { FontAwesome } from "@expo/vector-icons";
-import FormField from "@/components/FormField";
+import FormField from "@/components/ui/FormField";
 import { Link, router } from "expo-router";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { signIn } from "@/libs/firebase";
 
 const Login = () => {

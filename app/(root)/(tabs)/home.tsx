@@ -1,8 +1,10 @@
-import { View, Text, Alert } from "react-native";
+import { Alert } from "react-native";
 import React from "react";
-import Button from "@/components/Button";
 import { signOut } from "@/libs/firebase";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "@/components/home/Header";
+import NoCourses from "@/components/home/NoCourses";
 
 const Home = () => {
   const handleSignOut = async () => {
@@ -16,9 +18,10 @@ const Home = () => {
   };
 
   return (
-    <View className="flex flex-1 items-center justify-center">
-      <Button title="Sign Out" onPress={handleSignOut} />
-    </View>
+    <SafeAreaView className="flex justify-center px-8">
+      <Header />
+      <NoCourses />
+    </SafeAreaView>
   );
 };
 export default Home;
