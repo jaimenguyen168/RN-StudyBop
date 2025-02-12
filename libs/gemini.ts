@@ -1,6 +1,6 @@
 import { model, generationConfig } from "@/configs/gemini";
 
-export const generateTopic = model.startChat({
+export const generateTopics = model.startChat({
   generationConfig,
   history: [
     {
@@ -20,4 +20,9 @@ export const generateTopic = model.startChat({
       ],
     },
   ],
+});
+
+export const generateCourse = model.startChat({
+  generationConfig,
+  history: [],
 });

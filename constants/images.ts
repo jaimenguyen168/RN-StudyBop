@@ -28,6 +28,8 @@ import highOnCouch from "@/assets/images/high-on-couch.png";
 import hello1 from "@/assets/images/hello1.png";
 import hello2 from "@/assets/images/hello2.png";
 
+import loading from "@/assets/images/loading.gif";
+
 export default {
   banner1,
   banner2,
@@ -58,4 +60,5 @@ export default {
   highOnCouch,
   hello1,
   hello2,
+  loading,
 };
