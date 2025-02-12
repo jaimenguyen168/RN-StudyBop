@@ -1,12 +1,11 @@
 import React from "react";
 import { Stack } from "expo-router";
 
-const RootLayout = () => {
+const CoreLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(core)" />
+      <Stack.Screen name="add" />
     </Stack>
   );
 };
-export default RootLayout;
+export default CoreLayout;

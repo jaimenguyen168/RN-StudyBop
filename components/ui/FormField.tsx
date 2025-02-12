@@ -6,6 +6,7 @@ interface Props {
   placeholder: string;
   secureTextEntry?: boolean;
   value: string;
+  isLongText?: boolean;
   onChangeText: (text: string) => void;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -15,6 +16,7 @@ const FormField = ({
   placeholder,
   secureTextEntry = false,
   value,
+  isLongText = false,
   onChangeText,
   onFocus,
   onBlur,
@@ -33,7 +35,10 @@ const FormField = ({
           placeholderTextColor="#999"
           value={value}
           onChangeText={onChangeText}
-          className="w-full px-4 py-6 bg-secondary-light rounded-3xl font-nunitoMedium pr-16"
+          className={`
+            w-full px-4 py-6 bg-secondary-light rounded-3xl font-rubik pr-16 ${isLongText ? "h-32" : "h-auto"}
+          `}
+          multiline={isLongText}
           onFocus={onFocus}
           onBlur={onBlur}
         />

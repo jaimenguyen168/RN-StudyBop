@@ -26,6 +26,7 @@ export default {
     },
     extra: {
       firebaseApiKey: process.env.FIREBASE_API_KEY,
+      geminiApiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY,
     },
     plugins: [
       "expo-router",
