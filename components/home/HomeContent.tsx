@@ -1,8 +1,11 @@
-import { View, Text, Alert, ActivityIndicator } from "react-native";
+import { View, Text, Alert, ActivityIndicator, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import NoCourses from "@/components/home/NoCourses";
 import { listenToCourses } from "@/libs/firebase";
 import { Course } from "@/types/type";
+import CourseList from "@/components/home/CourseList";
+import PracticeList from "@/components/home/PracticeList";
+import CoursesProgress from "@/components/home/CoursesProgress";
 
 const HomeContent = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -42,8 +45,20 @@ const HomeContent = () => {
   }
 
   return (
-    <View>
-      <Text>{courses[0].courseTitle}</Text>
+    <View className="flex flex-1">
+      <FlatList
+        data={[1]}
+        className="-mx-8"
+        renderItem={() => {
+          return (
+            <View>
+              <CoursesProgress courses={courses.slice(4, 8)} />
+              <PracticeList />
+              <CourseList courses={courses} />
+            </View>
+          );
+        }}
+      />
     </View>
   );
 };
