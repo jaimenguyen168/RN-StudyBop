@@ -6,7 +6,13 @@ import {
 } from "@firebase/auth";
 import { Result } from "@/types/util";
 import { Course } from "@/types/type";
-import { addDoc, collection } from "@firebase/firestore";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "@firebase/firestore";
 
 const getUid = () => auth.currentUser?.uid;
 
@@ -113,4 +119,59 @@ export const saveCourses = async (courses: Course[]): Promise<Result> => {
       error: `${error.code} ${error.message}`,
     };
   }
+};
+
+export const listenToCourses = (
+  fetchAll: boolean = true,
+  callback: (result: Result<Course[]>) => void,
+) => {
+  const uid = getUid();
+  if (!uid && !fetchAll) {
+    return {
+      success: false,
+      error: "User not logged in",
+    };
+  }
+
+  const courseQuery = fetchAll
+    ? query(collection(db, collectionRef.courses))
+    : query(collection(db, collectionRef.courses), where("userId", "==", uid));
+
+  const unsubscribe = onSnapshot(
+    courseQuery,
+    async (querySnapshot) => {
+      const courses: Course[] = [];
+
+      // Fetch all course data along with its fields directly in the document
+      const fetchCoursesWithDetails = querySnapshot.docs.map((doc) => {
+        const courseData = doc.data();
+
+        const course: Course = {
+          id: doc.id,
+          banner_image: courseData.banner_image || "",
+          category: courseData.category || "",
+          courseTitle: courseData.courseTitle || "",
+          description: courseData.description || "",
+          userId: courseData.userId || "",
+          dateCreated: courseData.dateCreated.toDate(),
+          chapters: courseData.chapters || [],
+          flashcards: courseData.flashcards || [],
+          qa: courseData.qa || [],
+          quiz: courseData.quiz || [],
+        };
+
+        return course;
+      });
+
+      const result = await Promise.all(fetchCoursesWithDetails);
+      courses.push(...result);
+
+      callback({ success: true, data: courses });
+    },
+    (error: any) => {
+      callback({ success: false, error: error.message });
+    },
+  );
+
+  return unsubscribe;
 };

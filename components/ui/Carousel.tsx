@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import React, { useRef, useState } from "react";
-import { onboardingContent } from "@/constants/static";
+import { onboardingContent } from "@/constants/onboarding";
 import Button from "@/components/ui/Button";
 
 export type CarouselProps = {
