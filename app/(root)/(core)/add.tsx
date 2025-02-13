@@ -1,20 +1,15 @@
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  Keyboard,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, Text, Pressable, ScrollView, Image, Alert } from "react-native";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/ui/FormField";
 import Button from "@/components/ui/Button";
 import { generateCourse, generateTopics } from "@/libs/gemini";
 import prompt from "@/constants/prompt";
 import { BlurView } from "expo-blur";
 import images from "@/constants/images";
+import { saveCourses } from "@/libs/firebase";
+import { Course } from "@/types/type";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const Add = () => {
   const [topics, setTopics] = useState<string[]>([]);
@@ -40,8 +35,6 @@ const Add = () => {
     const promptText = form.title + prompt.IDEA;
     const response = await generateTopics.sendMessage(promptText);
     const result = JSON.parse(response.response.text());
-
-    console.log("result", result);
     setTopics(result);
 
     setLoading(false);
@@ -60,10 +53,26 @@ const Add = () => {
 
     setCourseLoading(true);
     const promptText = selectedTopics.join(", ") + prompt.COURSE;
-    const response = await generateCourse.sendMessage(promptText);
-    const result = JSON.parse(response.response.text());
 
-    console.log("result", result);
+    console.log("Starting course generation");
+
+    const response = await generateCourse.sendMessage(promptText);
+
+    const responseText = response.response.text();
+
+    // wait for the response to be processed
+    await Promise.resolve();
+
+    const result = JSON.parse(responseText);
+
+    const save = await saveCourses(result as Course[]);
+
+    if (save.success) {
+      Alert.alert("Success", save.data);
+      router.back();
+    } else {
+      Alert.alert("Error", save.error);
+    }
 
     setCourseLoading(false);
   };
@@ -73,9 +82,18 @@ const Add = () => {
       <ScrollView className="flex w-full h-full bg-white">
         <View className="flex justify-center px-8 pt-20 gap-6">
           <View className="gap-2">
-            <Text className="font-rubikSemiBold text-3xl">
-              Create a new course
-            </Text>
+            <View className="flex-row items-center justify-between">
+              <Text className="font-rubikSemiBold text-3xl">
+                Create a new course
+              </Text>
+
+              <Pressable
+                onPress={() => router.back()}
+                className="p-1 bg-transparent rounded-full -mr-2"
+              >
+                <Ionicons name="close" size={24} color="#78746D" />
+              </Pressable>
+            </View>
             <Text className="font-rubik text-2xl">
               What do you want to learn today?
             </Text>

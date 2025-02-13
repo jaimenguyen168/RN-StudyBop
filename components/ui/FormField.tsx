@@ -41,6 +41,9 @@ const FormField = ({
           multiline={isLongText}
           onFocus={onFocus}
           onBlur={onBlur}
+          style={{
+            fontFamily: "Rubik-Light",
+          }}
         />
         {secureTextEntry && (
           <TouchableOpacity

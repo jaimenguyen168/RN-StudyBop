@@ -1,10 +1,18 @@
-import { auth } from "@/configs/firebase";
+import { auth, db } from "@/configs/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
+import { Course } from "@/types/type";
+import { addDoc, collection } from "@firebase/firestore";
+
+const getUid = () => auth.currentUser?.uid;
+
+const collectionRef = {
+  courses: "courses",
+};
 
 export const signUp = async (
   name: string,
@@ -68,6 +76,38 @@ export const signOut = async (): Promise<Result> => {
     };
   } catch (error: any) {
     console.error(error);
+    return {
+      success: false,
+      error: `${error.code} ${error.message}`,
+    };
+  }
+};
+
+export const saveCourses = async (courses: Course[]): Promise<Result> => {
+  const uid = getUid();
+  if (!uid) {
+    return {
+      success: false,
+      error: "User not logged in",
+    };
+  }
+
+  try {
+    const saveAll = courses.map((course) =>
+      addDoc(collection(db, collectionRef.courses), {
+        ...course,
+        userId: uid,
+        dateCreated: new Date(),
+      }),
+    );
+
+    await Promise.all(saveAll);
+
+    return {
+      success: true,
+      data: "Saved all courses successfully",
+    };
+  } catch (error: any) {
     return {
       success: false,
       error: `${error.code} ${error.message}`,
