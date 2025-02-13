@@ -24,7 +24,7 @@ const HomeContent = () => {
     });
 
     return () => {
-      if (unsubscribe && typeof unsubscribe === "function") {
+      if (typeof unsubscribe === "function") {
         unsubscribe();
       }
     };

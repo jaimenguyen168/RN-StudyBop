@@ -9,9 +9,10 @@ import { Course } from "@/types/type";
 import {
   addDoc,
   collection,
+  doc,
+  onSnapshot,
   query,
   where,
-  onSnapshot,
 } from "@firebase/firestore";
 
 const getUid = () => auth.currentUser?.uid;
@@ -137,7 +138,7 @@ export const listenToCourses = (
     ? query(collection(db, collectionRef.courses))
     : query(collection(db, collectionRef.courses), where("userId", "==", uid));
 
-  const unsubscribe = onSnapshot(
+  return onSnapshot(
     courseQuery,
     async (querySnapshot) => {
       const courses: Course[] = [];
@@ -146,21 +147,20 @@ export const listenToCourses = (
       const fetchCoursesWithDetails = querySnapshot.docs.map((doc) => {
         const courseData = doc.data();
 
-        const course: Course = {
+        return {
           id: doc.id,
-          banner_image: courseData.banner_image || "",
-          category: courseData.category || "",
-          courseTitle: courseData.courseTitle || "",
-          description: courseData.description || "",
-          userId: courseData.userId || "",
-          dateCreated: courseData.dateCreated.toDate(),
-          chapters: courseData.chapters || [],
-          flashcards: courseData.flashcards || [],
-          qa: courseData.qa || [],
-          quiz: courseData.quiz || [],
-        };
-
-        return course;
+          ...courseData,
+          // banner_image: courseData.banner_image || "",
+          // category: courseData.category || "",
+          // courseTitle: courseData.courseTitle || "",
+          // description: courseData.description || "",
+          // userId: courseData.userId || "",
+          // dateCreated: courseData.dateCreated.toDate(),
+          // chapters: courseData.chapters || [],
+          // flashcards: courseData.flashcards || [],
+          // qa: courseData.qa || [],
+          // quiz: courseData.quiz || [],
+        } as Course;
       });
 
       const result = await Promise.all(fetchCoursesWithDetails);
@@ -172,6 +172,47 @@ export const listenToCourses = (
       callback({ success: false, error: error.message });
     },
   );
+};
 
-  return unsubscribe;
+export const listenToCourseById = (
+  courseId: string,
+  callback: (result: Result<Course | null>) => void,
+) => {
+  if (!courseId) {
+    callback({ success: false, error: "Course ID is required" });
+    return () => {}; // Return an empty function to avoid errors
+  }
+
+  const courseRef = doc(db, collectionRef.courses, courseId);
+
+  return onSnapshot(
+    courseRef,
+    (docSnapshot) => {
+      if (!docSnapshot.exists()) {
+        callback({ success: false, error: "Course not found" });
+        return;
+      }
+
+      const courseData = docSnapshot.data();
+
+      const course: Course = {
+        id: docSnapshot.id,
+        banner_image: courseData.banner_image || "",
+        category: courseData.category || "",
+        courseTitle: courseData.courseTitle || "",
+        description: courseData.description || "",
+        userId: courseData.userId || "",
+        dateCreated: courseData.dateCreated?.toDate() || new Date(),
+        chapters: courseData.chapters || [],
+        flashcards: courseData.flashcards || [],
+        qa: courseData.qa || [],
+        quiz: courseData.quiz || [],
+      };
+
+      callback({ success: true, data: course });
+    },
+    (error) => {
+      callback({ success: false, error: error.message });
+    },
+  );
 };

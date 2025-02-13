@@ -1,8 +1,9 @@
-import { View, Text, FlatList, Image } from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Course } from "@/types/type";
 import { imageAssets } from "@/constants/options";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const CourseList = ({ courses }: { courses: Course[] }) => {
   return (
@@ -42,8 +43,16 @@ const CourseCardItem = ({
 }) => {
   const bannerImage = course.banner_image as keyof typeof imageAssets;
 
+  const goToCourseDetails = () => {
+    router.push({
+      pathname: "/(root)/(core)/course-details",
+      params: { courseId: course.id },
+    });
+  };
+
   return (
-    <View
+    <TouchableOpacity
+      onPress={goToCourseDetails}
       className={`items-start justify-start w-[250px] h-auto gap-4 bg-white p-3 pb-8 rounded-2xl ${isFirst ? "ml-8" : "ml-3"} ${isLast ? "mr-8" : "mr-3"}`}
     >
       <Image
@@ -66,6 +75,6 @@ const CourseCardItem = ({
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };

@@ -8,7 +8,7 @@ const CoursesProgress = ({ courses }: { courses: Course[] }) => {
   return (
     <View className="flex">
       <View className="mb-2 mx-8">
-        <Text className="font-rubikSemiBold text-2xl">Courses</Text>
+        <Text className="font-rubikSemiBold text-2xl">Progress</Text>
       </View>
 
       <FlatList
