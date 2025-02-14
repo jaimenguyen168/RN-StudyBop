@@ -50,7 +50,14 @@ const CourseDetails = () => {
   };
 
   const handleChapterPress = (chapterName: string) => {
-    console.log("chapterName", chapterName);
+    const chapter = course?.chapters.find((c) => c.chapterName === chapterName);
+
+    if (chapter) {
+      router.push({
+        pathname: "/(root)/(core)/chapter-details",
+        params: { currentChapter: JSON.stringify(chapter) },
+      });
+    }
   };
 
   if (loading) {

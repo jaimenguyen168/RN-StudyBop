@@ -1,8 +1,8 @@
 interface Content {
   topic: string;
   explain: string;
-  code: string | null;
-  example: string | null;
+  code?: string | null;
+  example?: string | null;
 }
 
 interface Chapter {
@@ -41,4 +41,4 @@ interface Course {
   dateCreated: Date;
 }
 
-export type { Course };
+export type { Course, Chapter, Content };

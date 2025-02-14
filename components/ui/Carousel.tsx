@@ -7,26 +7,29 @@ import {
   Animated,
   Image,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { onboardingContent } from "@/constants/onboarding";
 import Button from "@/components/ui/Button";
 
-export type CarouselProps = {
-  title: string;
-  subtitle: string;
-  image: ImageSourcePropType;
+export type CarouselProps<T> = {
+  items: T[];
+  buttonTitle?: string;
+  renderItem: ({ item, index }: { item: T; index: number }) => any;
+  onEnded: (isEnded: boolean) => void;
+  goBackSignal?: boolean;
+  onIndexChange?: (index: number) => void;
 };
 
-const Carousel = ({
+const Carousel = <T,>({
   items,
+  buttonTitle = "Next",
+  renderItem,
   onEnded,
-}: {
-  items: CarouselProps[];
-  onEnded: (isEnded: boolean) => void;
-}) => {
+  goBackSignal,
+  onIndexChange,
+}: CarouselProps<T>) => {
   const screenWidth = Dimensions.get("screen").width;
   const [paginationIndex, setPaginationIndex] = useState(0);
-
   const flatListRef = useRef<FlatList>(null);
 
   const handleNextPress = () => {
@@ -34,35 +37,30 @@ const Carousel = ({
       const nextIndex = paginationIndex + 1;
       flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
       setPaginationIndex(nextIndex);
+      onIndexChange?.(nextIndex);
     } else {
       onEnded(true);
     }
   };
 
+  useEffect(() => {
+    if (paginationIndex > 0) {
+      const prevIndex = paginationIndex - 1;
+      flatListRef.current?.scrollToIndex({ index: prevIndex, animated: true });
+      setPaginationIndex(prevIndex);
+      onIndexChange?.(prevIndex);
+    }
+  }, [goBackSignal]);
+
   return (
-    <View className="flex-1 items-center justify-center w-full gap-12 mb-16">
-      <View>
+    <View className="items-center justify-center w-full gap-12 mb-16">
+      <View className="w-full">
         <FlatList
           ref={flatListRef}
           data={items}
           renderItem={({ item, index }) => (
-            <View
-              className="items-center justify-center px-12"
-              style={{ width: screenWidth }}
-            >
-              <Image
-                source={item.image}
-                className="w-full h-[512px]"
-                resizeMode="contain"
-              />
-              <View className="items-center gap-4">
-                <Text className="text-3xl font-semibold text-center px-24">
-                  {item.title}
-                </Text>
-                <Text className="text-base text-center text-ink-darkGray px-8">
-                  {item.subtitle}
-                </Text>
-              </View>
+            <View className="w-screen overflow-hidden">
+              {renderItem({ item, index })}
             </View>
           )}
           horizontal
@@ -73,25 +71,28 @@ const Carousel = ({
             const offsetX = event.nativeEvent.contentOffset.x;
             const index = Math.round(offsetX / screenWidth);
             setPaginationIndex(index);
+            onIndexChange?.(index);
           }}
-          className="flex-grow-0"
+          className="flex-grow-0 w-screen overflow-hidden"
           scrollEventThrottle={16}
         />
       </View>
 
-      <View className="flex-row mt-8 h-8 justify-center items-center">
-        {items.map((_, index) => (
-          <Animated.View
-            key={index}
-            className={`h-2 rounded-full mx-1 ${
-              index === paginationIndex ? "bg-primary w-4" : "bg-ink-gray w-2"
-            }`}
-          />
-        ))}
-      </View>
+      <View className="flex-1 min-h-[50px]" />
 
-      <View className="w-full px-12">
-        <Button title="Next" onPress={handleNextPress} />
+      <View className="w-full px-12 gap-8">
+        <View className="flex-row mt-8 h-8 justify-center items-center">
+          {items.map((_, index) => (
+            <Animated.View
+              key={index}
+              className={`h-2 rounded-full mx-1 ${
+                index === paginationIndex ? "bg-primary w-4" : "bg-ink-gray w-2"
+              }`}
+            />
+          ))}
+        </View>
+
+        <Button title={buttonTitle} onPress={handleNextPress} />
       </View>
     </View>
   );
