@@ -252,3 +252,62 @@ export const markChapterCompleted = async (
     return { success: false, error: `${error.code} ${error.message}` };
   }
 };
+
+export const listenToProgressCourses = (
+  callback: (result: Result<Course[]>) => void,
+): (() => void) => {
+  const uid = getUid();
+  if (!uid) {
+    callback({
+      success: false,
+      error: "User not logged in",
+    });
+    return () => {};
+  }
+
+  const progressRef = collection(
+    db,
+    `${collectionRef.users}/${uid}/${subCollectionRef.progress}`,
+  );
+
+  return onSnapshot(
+    progressRef,
+    async (progressSnapshot) => {
+      if (progressSnapshot.empty) {
+        callback({ success: true, data: [] });
+        return;
+      }
+
+      const coursePromises = progressSnapshot.docs.map(async (progressDoc) => {
+        const courseId = progressDoc.id;
+
+        const courseRef = doc(db, collectionRef.courses, courseId);
+        const courseSnapshot = await getDoc(courseRef);
+
+        if (courseSnapshot.exists()) {
+          const courseData = courseSnapshot.data();
+          const completedChapters = progressDoc.data() || {};
+
+          const updatedChapters = courseData.chapters.map(
+            (chapter: Chapter) => ({
+              ...chapter,
+              isCompleted: completedChapters[chapter.chapterName] || false,
+            }),
+          );
+
+          return {
+            id: courseSnapshot.id,
+            ...courseData,
+            chapters: updatedChapters,
+          } as Course;
+        }
+      });
+
+      const courses = await Promise.all(coursePromises);
+      callback({ success: true, data: courses as Course[] });
+    },
+    (error) => {
+      callback({ success: false, error: error.message });
+    },
+  );
+};

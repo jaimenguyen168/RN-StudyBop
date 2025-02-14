@@ -46,6 +46,10 @@ const CourseCardProgress = ({
 }) => {
   const bannerImage = course.banner_image as keyof typeof imageAssets;
 
+  const completedChaptersCount = course.chapters.filter(
+    (chapter) => chapter.isCompleted,
+  ).length;
+
   return (
     <View
       className={`items-start justify-start w-[280px] h-auto gap-4 bg-white p-3 pb-6 rounded-2xl ${isFirst ? "ml-8" : "ml-3"} ${isLast ? "mr-8" : "mr-3"}`}
@@ -71,8 +75,15 @@ const CourseCardProgress = ({
       </View>
 
       <View className="gap-2">
-        <Progress.Bar progress={0.0} width={250} color="#E3562A" />
-        <Text>3 out of 5 chapters completed</Text>
+        <Progress.Bar
+          progress={completedChaptersCount / course.chapters.length}
+          width={250}
+          color="#E3562A"
+        />
+        <Text>
+          {completedChaptersCount} out of {course.chapters.length} chapters
+          completed
+        </Text>
       </View>
     </View>
   );

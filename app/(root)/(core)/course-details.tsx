@@ -198,9 +198,9 @@ const ChapterRowItem = ({
       </Text>
 
       {isCompleted ? (
-        <Ionicons name="checkmark-circle-outline" size={24} color="#5BA092" />
+        <Ionicons name="checkmark-circle" size={24} color="#5BA092" />
       ) : (
-        <Ionicons name="chevron-forward" size={24} color="#E3562A" />
+        <Ionicons name="chevron-forward-circle" size={24} color="#E3562A" />
       )}
     </View>
   );
