@@ -5,20 +5,27 @@ import {
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
-import { Course } from "@/types/type";
+import { Chapter, Course } from "@/types/type";
 import {
   addDoc,
   collection,
   doc,
+  getDoc,
   onSnapshot,
   query,
+  setDoc,
   where,
 } from "@firebase/firestore";
 
 const getUid = () => auth.currentUser?.uid;
 
 const collectionRef = {
+  users: "users",
   courses: "courses",
+};
+
+const subCollectionRef = {
+  progress: "progress",
 };
 
 export const signUp = async (
@@ -180,14 +187,18 @@ export const listenToCourseById = (
 ) => {
   if (!courseId) {
     callback({ success: false, error: "Course ID is required" });
-    return () => {}; // Return an empty function to avoid errors
+    return () => {};
   }
 
   const courseRef = doc(db, collectionRef.courses, courseId);
+  const progressRef = doc(
+    db,
+    `${collectionRef.users}/${getUid()}/${subCollectionRef.progress}/${courseId}`,
+  );
 
   return onSnapshot(
     courseRef,
-    (docSnapshot) => {
+    async (docSnapshot) => {
       if (!docSnapshot.exists()) {
         callback({ success: false, error: "Course not found" });
         return;
@@ -195,19 +206,21 @@ export const listenToCourseById = (
 
       const courseData = docSnapshot.data();
 
+      const progressSnapshot = await getDoc(progressRef);
+      const completedChapters = progressSnapshot.exists()
+        ? progressSnapshot.data() || {}
+        : {};
+
+      const updatedChapters = courseData.chapters.map((chapter: Chapter) => ({
+        ...chapter,
+        isCompleted: completedChapters[chapter.chapterName] || false,
+      })) as Chapter[];
+
       const course: Course = {
         id: docSnapshot.id,
-        banner_image: courseData.banner_image || "",
-        category: courseData.category || "",
-        courseTitle: courseData.courseTitle || "",
-        description: courseData.description || "",
-        userId: courseData.userId || "",
-        dateCreated: courseData.dateCreated?.toDate() || new Date(),
-        chapters: courseData.chapters || [],
-        flashcards: courseData.flashcards || [],
-        qa: courseData.qa || [],
-        quiz: courseData.quiz || [],
-      };
+        ...courseData,
+        chapters: updatedChapters,
+      } as Course;
 
       callback({ success: true, data: course });
     },
@@ -215,4 +228,27 @@ export const listenToCourseById = (
       callback({ success: false, error: error.message });
     },
   );
+};
+
+export const markChapterCompleted = async (
+  courseId: string,
+  chapterName: string,
+): Promise<Result> => {
+  const uid = getUid();
+  if (!uid) return { success: false, error: "User not logged in" };
+
+  try {
+    const completionRef = doc(
+      db,
+      `${collectionRef.users}/${uid}/${subCollectionRef.progress}/${courseId}`,
+    );
+    await setDoc(completionRef, { [chapterName]: true }, { merge: true });
+
+    return {
+      success: true,
+      data: `You have completed chapter '${chapterName}'.`,
+    };
+  } catch (error: any) {
+    return { success: false, error: `${error.code} ${error.message}` };
+  }
 };

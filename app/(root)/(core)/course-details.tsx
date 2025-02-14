@@ -7,12 +7,12 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { router, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { listenToCourseById } from "@/libs/firebase";
 import { Course } from "@/types/type";
 import { imageAssets } from "@/constants/options";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import Button from "@/components/ui/Button";
 
 const CourseDetails = () => {
@@ -20,26 +20,24 @@ const CourseDetails = () => {
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!courseId) {
-      Alert.alert("Error", "Course ID is required");
-      return;
-    }
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
 
-    const unsubscribe = listenToCourseById(courseId, (result) => {
-      if (result.success) {
-        setCourse(result.data);
+      const unsubscribe = listenToCourseById(courseId, (result) => {
+        if (result.success) {
+          setCourse(result.data);
+        } else {
+          Alert.alert("Error", result.error);
+        }
         setLoading(false);
-      } else {
-        Alert.alert("Error", result.error);
-        setLoading(false);
-      }
-    });
+      });
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+      return () => {
+        unsubscribe();
+      };
+    }, [courseId]),
+  );
 
   const handleGoBack = () => {
     router.back();
@@ -55,7 +53,10 @@ const CourseDetails = () => {
     if (chapter) {
       router.push({
         pathname: "/(root)/(core)/chapter-details",
-        params: { currentChapter: JSON.stringify(chapter) },
+        params: {
+          courseId: courseId,
+          currentChapter: JSON.stringify(chapter),
+        },
       });
     }
   };
@@ -161,14 +162,15 @@ const CourseDetailsContent = ({
           >
             <ChapterRowItem
               chapterName={item.chapterName as string}
+              isCompleted={item.isCompleted as boolean}
               index={index}
             />
           </TouchableOpacity>
         )}
         ListFooterComponent={() => (
           <View className="flex flex-1 items-center justify-center h-32 w-full">
-            <Text className="mb-8 font-rubikItalic">
-              Created with AI 🤖, inspired by creativity 🚀
+            <Text className="mb-4 font-rubikItalic">
+              Created with AI 🤖 Inspired by creativity 🚀
             </Text>
           </View>
         )}
@@ -179,18 +181,27 @@ const CourseDetailsContent = ({
 
 const ChapterRowItem = ({
   chapterName,
+  isCompleted = false,
   index,
 }: {
   chapterName: string;
+  isCompleted?: boolean;
   index: number;
 }) => {
   return (
     <View className="flex-row px-6 py-5 gap-4 border border-ink-darkGray rounded-3xl">
-      <Text className="text-lg font-rubik flex-1" numberOfLines={1}>
+      <Text
+        className={`text-lg flex-1 ${isCompleted ? "font-rubikLight" : "font-rubikMedium"}`}
+        numberOfLines={1}
+      >
         {index + 1}. {chapterName}
       </Text>
 
-      <Ionicons name="chevron-forward" size={24} color="#E3562A" />
+      {isCompleted ? (
+        <Ionicons name="checkmark-circle-outline" size={24} color="#5BA092" />
+      ) : (
+        <Ionicons name="chevron-forward" size={24} color="#E3562A" />
+      )}
     </View>
   );
 };

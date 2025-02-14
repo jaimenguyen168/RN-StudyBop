@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, Text, View } from "react-native";
+import { Alert, Dimensions, Pressable, Text, View } from "react-native";
 import React, { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Chapter, Content } from "@/types/type";
@@ -8,21 +8,44 @@ import { onboardingContent } from "@/constants/onboarding";
 import Carousel from "@/components/ui/Carousel";
 import Button from "@/components/ui/Button";
 import { Ionicons } from "@expo/vector-icons";
+import { markChapterCompleted } from "@/libs/firebase";
 
 const ChapterDetails = () => {
-  const { currentChapter } = useLocalSearchParams();
+  const { currentChapter, courseId } = useLocalSearchParams();
   const chapter = JSON.parse(currentChapter as string) as Chapter;
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [goBackSignal, setGoBackSignal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getProgress = () => {
     return (currentPage + 1) / chapter.content.length;
   };
 
+  const handleOnEnded = async (isEnded: boolean) => {
+    if (!isEnded) return;
+
+    try {
+      setLoading(true);
+
+      const result = await markChapterCompleted(
+        courseId as string,
+        chapter.chapterName,
+      );
+
+      if (result.success) {
+        Alert.alert("Congratulations", result.data);
+        router.back();
+      } else {
+        Alert.alert("Error", result.error);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to save chapter as completed");
+    }
+  };
+
   const width =
     Dimensions.get("window").width * (currentPage == 0 ? 0.65 : 0.65);
-
-  const [goBackSignal, setGoBackSignal] = useState(false);
 
   const isFirstPage = currentPage === 0;
   const isLastPage = currentPage === chapter.content.length - 1;
@@ -58,9 +81,10 @@ const ChapterDetails = () => {
           items={chapter.content}
           buttonTitle={isLastPage ? "Finish" : "I Got It"}
           renderItem={({ item }) => <ChapterContent item={item} />}
-          onEnded={(isEnded: boolean) => {}}
+          onEnded={handleOnEnded}
           goBackSignal={goBackSignal}
           onIndexChange={(index: number) => setCurrentPage(index)}
+          loading={loading}
         />
       </View>
     </SafeAreaView>
@@ -84,7 +108,7 @@ const ChapterContent = ({ item }: { item: Content }) => {
 
         {code && (
           <View className="bg-black p-4 rounded-2xl">
-            <Text className="text-md font-rubik text-white leading-7">
+            <Text className="text-md font-rubik text-white leading-6">
               {code}
             </Text>
           </View>

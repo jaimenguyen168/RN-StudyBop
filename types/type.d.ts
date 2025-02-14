@@ -8,6 +8,7 @@ interface Content {
 interface Chapter {
   chapterName: string;
   content: Content[];
+  isCompleted: boolean;
 }
 
 interface Flashcard {

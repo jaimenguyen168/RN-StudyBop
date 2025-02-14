@@ -18,6 +18,7 @@ export type CarouselProps<T> = {
   onEnded: (isEnded: boolean) => void;
   goBackSignal?: boolean;
   onIndexChange?: (index: number) => void;
+  loading?: boolean;
 };
 
 const Carousel = <T,>({
@@ -27,6 +28,7 @@ const Carousel = <T,>({
   onEnded,
   goBackSignal,
   onIndexChange,
+  loading = false,
 }: CarouselProps<T>) => {
   const screenWidth = Dimensions.get("screen").width;
   const [paginationIndex, setPaginationIndex] = useState(0);
@@ -53,7 +55,7 @@ const Carousel = <T,>({
   }, [goBackSignal]);
 
   return (
-    <View className="items-center justify-center w-full h-full gap-12 mb-16">
+    <View className="items-center justify-center w-full h-full gap-12">
       <View className="w-full">
         <FlatList
           ref={flatListRef}
@@ -92,7 +94,11 @@ const Carousel = <T,>({
           ))}
         </View>
 
-        <Button title={buttonTitle} onPress={handleNextPress} />
+        <Button
+          title={buttonTitle}
+          onPress={handleNextPress}
+          loading={loading}
+        />
       </View>
     </View>
   );
