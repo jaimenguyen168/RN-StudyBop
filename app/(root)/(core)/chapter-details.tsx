@@ -24,15 +24,23 @@ const ChapterDetails = () => {
 
   const [goBackSignal, setGoBackSignal] = useState(false);
 
+  const isFirstPage = currentPage === 0;
+  const isLastPage = currentPage === chapter.content.length - 1;
+
   return (
     <SafeAreaView className="flex-1 w-full items-center py-4">
-      <View className="flex-row gap-4 px-8 items-center h-12">
+      <View className="flex-row gap-4 px-8 items-center h-10">
         {currentPage > -1 && (
           <Pressable
             onPress={() => setGoBackSignal((prev) => !prev)}
+            disabled={isFirstPage}
             className="p-1 bg-transparent rounded-full"
           >
-            <Ionicons name="chevron-back" size={24} color="#E3562A" />
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={`${isFirstPage ? "#999" : "#E3562A"}`}
+            />
           </Pressable>
         )}
         <Progress.Bar progress={getProgress()} width={width} color="#E3562A" />
@@ -45,10 +53,10 @@ const ChapterDetails = () => {
         </Pressable>
       </View>
 
-      <View className="flex-1 w-full items-center justify-center py-6 mt-16">
+      <View className="flex-1 w-full items-center justify-start py-6">
         <Carousel
           items={chapter.content}
-          buttonTitle="I Got It"
+          buttonTitle={isLastPage ? "Finish" : "I Got It"}
           renderItem={({ item }) => <ChapterContent item={item} />}
           onEnded={(isEnded: boolean) => {}}
           goBackSignal={goBackSignal}
@@ -76,13 +84,15 @@ const ChapterContent = ({ item }: { item: Content }) => {
 
         {code && (
           <View className="bg-black p-4 rounded-2xl">
-            <Text className="text-md font-rubik text-white">{code}</Text>
+            <Text className="text-md font-rubik text-white leading-7">
+              {code}
+            </Text>
           </View>
         )}
 
         {example && (
           <View className="bg-ink-gray p-4 rounded-2xl">
-            <Text className="text-md font-rubik">{example}</Text>
+            <Text className="text-lg font-rubik">{example}</Text>
           </View>
         )}
       </View>

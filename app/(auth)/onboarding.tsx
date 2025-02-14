@@ -23,11 +23,13 @@ const Onboarding = () => {
           <Text className="font-semibold text-lg text-primary">Skip</Text>
         </TouchableOpacity>
       </View>
-      <Carousel
-        items={onboardingContent}
-        renderItem={({ item }) => <OnboardingContent item={item} />}
-        onEnded={handleOnEnded}
-      />
+      <View className="flex-1 w-full items-center justify-start my-16 pt-16">
+        <Carousel
+          items={onboardingContent}
+          renderItem={({ item }) => <OnboardingContent item={item} />}
+          onEnded={handleOnEnded}
+        />
+      </View>
     </View>
   );
 };
@@ -49,7 +51,7 @@ const OnboardingContent = ({ item }: { item: OnboardingCarousel }) => {
     >
       <Image
         source={item.image}
-        className="w-full h-[400px]"
+        className="w-full h-[300px]"
         resizeMode="contain"
       />
       <View className="items-center gap-4">

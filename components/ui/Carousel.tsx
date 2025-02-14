@@ -53,7 +53,7 @@ const Carousel = <T,>({
   }, [goBackSignal]);
 
   return (
-    <View className="items-center justify-center w-full gap-12 mb-16">
+    <View className="items-center justify-center w-full h-full gap-12 mb-16">
       <View className="w-full">
         <FlatList
           ref={flatListRef}
@@ -78,7 +78,7 @@ const Carousel = <T,>({
         />
       </View>
 
-      <View className="flex-1 min-h-[50px]" />
+      <View className="flex-grow" />
 
       <View className="w-full px-12 gap-8">
         <View className="flex-row mt-8 h-8 justify-center items-center">
