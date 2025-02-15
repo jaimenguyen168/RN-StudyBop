@@ -6,7 +6,7 @@ import { generateCourse, generateTopics } from "@/libs/gemini";
 import prompt from "@/constants/prompt";
 import { BlurView } from "expo-blur";
 import images from "@/constants/images";
-import { saveCourses } from "@/libs/firebase";
+import { createCourses } from "@/libs/firebase";
 import { Course } from "@/types/type";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -54,27 +54,36 @@ const Add = () => {
     setCourseLoading(true);
     const promptText = selectedTopics.join(", ") + prompt.COURSE;
 
-    console.log("Starting course generation");
+    try {
+      console.log("Starting course generation");
 
-    const response = await generateCourse.sendMessage(promptText);
+      const response = await generateCourse.sendMessage(promptText);
 
-    const responseText = response.response.text();
+      console.log("Finished course generation", response);
 
-    // wait for the response to be processed
-    await Promise.resolve();
+      const responseText = response.response.text();
 
-    const result = JSON.parse(responseText);
+      // wait for the response to be processed
+      await Promise.resolve();
 
-    const save = await saveCourses(result as Course[]);
+      const result = JSON.parse(responseText);
 
-    if (save.success) {
-      Alert.alert("Success", save.data);
-      router.back();
-    } else {
-      Alert.alert("Error", save.error);
+      console.log("result", result);
+
+      const save = await createCourses(result.courses as Course[]);
+
+      if (save.success) {
+        Alert.alert("Success", save.data);
+        router.back();
+      } else {
+        Alert.alert("Error", save.error);
+      }
+    } catch (error: any) {
+      console.log("error", error);
+      Alert.alert("Error", error.message);
+    } finally {
+      setCourseLoading(false);
     }
-
-    setCourseLoading(false);
   };
 
   return (

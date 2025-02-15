@@ -98,7 +98,7 @@ export const signOut = async (): Promise<Result> => {
   }
 };
 
-export const saveCourses = async (courses: Course[]): Promise<Result> => {
+export const createCourses = async (courses: Course[]): Promise<Result> => {
   const uid = getUid();
   if (!uid) {
     return {
@@ -108,14 +108,24 @@ export const saveCourses = async (courses: Course[]): Promise<Result> => {
   }
 
   try {
-    const saveAll = courses.map((course) =>
-      addDoc(collection(db, collectionRef.courses), {
+    const saveAll = courses.map(async (course) => {
+      const courseRef = await addDoc(collection(db, collectionRef.courses), {
         ...course,
         userId: uid,
         dateCreated: new Date(),
         lastUpdated: new Date(),
-      }),
-    );
+      });
+
+      setDoc(
+        doc(
+          db,
+          `${collectionRef.users}/${uid}/${subCollectionRef.progress}/${courseRef.id}`,
+        ),
+        {},
+      ).catch((error) => console.error("Error setting progress:", error));
+
+      return courseRef.id;
+    });
 
     await Promise.all(saveAll);
 
@@ -124,6 +134,7 @@ export const saveCourses = async (courses: Course[]): Promise<Result> => {
       data: "Saved all courses successfully",
     };
   } catch (error: any) {
+    console.log(error);
     return {
       success: false,
       error: `${error.code} ${error.message}`,

@@ -1,23 +1,29 @@
 import images from "@/constants/images";
 
+export enum PracticePath {
+  QUIZ = "quiz",
+  FLASHCARDS = "flashcards",
+  QA = "questionAnswer",
+}
+
 export const practiceOptions = [
   {
     name: "Quiz",
     image: images.quizTime,
     icon: images.quiz,
-    path: "/quiz",
+    path: PracticePath.QUIZ,
   },
   {
     name: "Flashcards",
     image: images.flashcard,
     icon: images.layers,
-    path: "/flashcards",
+    path: PracticePath.FLASHCARDS,
   },
   {
     name: "Q&A",
     image: images.notes,
     icon: images.qa,
-    path: "/questionAnswer",
+    path: PracticePath.QA,
   },
 ];
 

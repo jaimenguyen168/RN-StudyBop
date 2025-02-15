@@ -9,10 +9,10 @@ const Header = () => {
   const handleSettingsPress = () => {};
 
   return (
-    <View className="flex-row items-center justify-between">
+    <View className="flex-row items-center justify-between px-8 py-4">
       <View className="flex gap-1">
         <Text className="text-2xl font-rubikSemiBold">
-          Hello, <Text className="text-primary">{user?.displayName}</Text>
+          Hello, <Text className="text-ink-light">{user?.displayName}</Text>
         </Text>
         <Text className="text-lg font-rubik">Let's get started</Text>
       </View>

@@ -81,8 +81,8 @@ const CourseCardProgress = ({
           color="#E3562A"
         />
         <Text>
-          {completedChaptersCount} out of {course.chapters.length} chapters
-          completed
+          {completedChaptersCount} Out of {course.chapters.length}{" "}
+          {course.chapters.length > 1 ? "Chapters" : "Chapter"} Completed
         </Text>
       </View>
     </View>

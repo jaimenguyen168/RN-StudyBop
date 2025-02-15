@@ -1,4 +1,4 @@
-import { View, Text, Alert, ActivityIndicator, FlatList } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Image, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import NoCourses from "@/components/home/NoCourses";
 import { listenToCourses, listenToProgressCourses } from "@/libs/firebase";
@@ -7,6 +7,8 @@ import CourseList from "@/components/home/CourseList";
 import PracticeList from "@/components/home/PracticeList";
 import CoursesProgress from "@/components/home/CoursesProgress";
 import { useFocusEffect } from "expo-router";
+import images from "@/constants/images";
+import Header from "@/components/home/Header";
 
 const HomeContent = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -14,48 +16,54 @@ const HomeContent = () => {
 
   const [loading, setLoading] = useState(true);
   const [progressLoading, setProgressLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = listenToCourses(true, (result) => {
+  const fetchCourses = () => {
+    setLoading(true);
+    return listenToCourses(true, (result) => {
       if (result.success) {
         setCourses(result.data);
-        setLoading(false);
       } else {
         Alert.alert("Error", result.error);
-        setLoading(false);
       }
+      setLoading(false);
     });
+  };
 
+  const fetchProgressCourses = () => {
+    setProgressLoading(true);
+    return listenToProgressCourses((result) => {
+      if (result.success) {
+        const sorted = result.data.sort(
+          (a, b) =>
+            (b.lastUpdated?.toDate()?.getTime() || 0) -
+            (a.lastUpdated?.toDate()?.getTime() || 0),
+        );
+        setProgressCourses(sorted);
+      } else {
+        Alert.alert("Error", result.error);
+      }
+      setProgressLoading(false);
+    });
+  };
+
+  useEffect(() => {
+    const unsubscribeCourses = fetchCourses();
+    const unsubscribeProgress = fetchProgressCourses();
     return () => {
-      if (typeof unsubscribe === "function") {
-        unsubscribe();
+      unsubscribeProgress();
+      if (typeof unsubscribeCourses === "function") {
+        unsubscribeCourses();
       }
     };
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      setProgressLoading(true);
-
-      const unsubscribe = listenToProgressCourses((result) => {
-        if (result.success) {
-          const sorted = result.data.sort(
-            (a, b) =>
-              (b.lastUpdated?.toDate()?.getTime() || 0) -
-              (a.lastUpdated?.toDate()?.getTime() || 0),
-          );
-          setProgressCourses(sorted);
-        } else {
-          Alert.alert("Error", result.error);
-        }
-        setProgressLoading(false);
-      });
-
-      return () => {
-        unsubscribe();
-      };
-    }, []),
-  );
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchCourses();
+    fetchProgressCourses();
+    setRefreshing(false);
+  };
 
   if (loading || progressLoading) {
     return (
@@ -75,14 +83,19 @@ const HomeContent = () => {
     <View className="flex flex-1">
       <FlatList
         data={[1]}
-        refreshing={loading || progressLoading}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
         className="-mx-8"
-        renderItem={() => {
+        showsVerticalScrollIndicator={false}
+        renderItem={() => <></>}
+        ListHeaderComponent={() => {
           return (
-            <View>
+            <View className="bg-transparent mt-16">
+              <Header />
               <CoursesProgress courses={progressCourses} />
               <PracticeList />
               <CourseList courses={courses} />
+              <View className="h-[150px]" />
             </View>
           );
         }}
