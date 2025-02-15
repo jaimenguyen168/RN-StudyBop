@@ -1,3 +1,5 @@
+import { Timestamp } from "@firebase/firestore";
+
 interface Content {
   topic: string;
   explain: string;
@@ -39,7 +41,8 @@ interface Course {
   quiz: Quiz[];
 
   userId: string;
-  dateCreated: Date;
+  dateCreated: Timestamp;
+  lastUpdated?: Timestamp;
 }
 
 export type { Course, Chapter, Content };

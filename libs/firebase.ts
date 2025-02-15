@@ -14,6 +14,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  updateDoc,
   where,
 } from "@firebase/firestore";
 
@@ -112,6 +113,7 @@ export const saveCourses = async (courses: Course[]): Promise<Result> => {
         ...course,
         userId: uid,
         dateCreated: new Date(),
+        lastUpdated: new Date(),
       }),
     );
 
@@ -150,23 +152,12 @@ export const listenToCourses = (
     async (querySnapshot) => {
       const courses: Course[] = [];
 
-      // Fetch all course data along with its fields directly in the document
       const fetchCoursesWithDetails = querySnapshot.docs.map((doc) => {
         const courseData = doc.data();
 
         return {
           id: doc.id,
           ...courseData,
-          // banner_image: courseData.banner_image || "",
-          // category: courseData.category || "",
-          // courseTitle: courseData.courseTitle || "",
-          // description: courseData.description || "",
-          // userId: courseData.userId || "",
-          // dateCreated: courseData.dateCreated.toDate(),
-          // chapters: courseData.chapters || [],
-          // flashcards: courseData.flashcards || [],
-          // qa: courseData.qa || [],
-          // quiz: courseData.quiz || [],
         } as Course;
       });
 
@@ -243,6 +234,10 @@ export const markChapterCompleted = async (
       `${collectionRef.users}/${uid}/${subCollectionRef.progress}/${courseId}`,
     );
     await setDoc(completionRef, { [chapterName]: true }, { merge: true });
+
+    updateDoc(doc(db, collectionRef.courses, courseId), {
+      lastUpdated: new Date(),
+    }).catch((error) => console.error("Failed to update lastUpdated:", error));
 
     return {
       success: true,

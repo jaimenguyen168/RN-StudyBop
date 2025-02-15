@@ -1,11 +1,12 @@
 import { View, Text, Alert, ActivityIndicator, FlatList } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import NoCourses from "@/components/home/NoCourses";
 import { listenToCourses, listenToProgressCourses } from "@/libs/firebase";
 import { Course } from "@/types/type";
 import CourseList from "@/components/home/CourseList";
 import PracticeList from "@/components/home/PracticeList";
 import CoursesProgress from "@/components/home/CoursesProgress";
+import { useFocusEffect } from "expo-router";
 
 const HomeContent = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -32,21 +33,29 @@ const HomeContent = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = listenToProgressCourses((result) => {
-      if (result.success) {
-        setProgressCourses(result.data);
-        setProgressLoading(false);
-      } else {
-        Alert.alert("Error", result.error);
-        setProgressLoading(false);
-      }
-    });
+  useFocusEffect(
+    useCallback(() => {
+      setProgressLoading(true);
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+      const unsubscribe = listenToProgressCourses((result) => {
+        if (result.success) {
+          const sorted = result.data.sort(
+            (a, b) =>
+              (b.lastUpdated?.toDate()?.getTime() || 0) -
+              (a.lastUpdated?.toDate()?.getTime() || 0),
+          );
+          setProgressCourses(sorted);
+        } else {
+          Alert.alert("Error", result.error);
+        }
+        setProgressLoading(false);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }, []),
+  );
 
   if (loading || progressLoading) {
     return (
@@ -66,6 +75,7 @@ const HomeContent = () => {
     <View className="flex flex-1">
       <FlatList
         data={[1]}
+        refreshing={loading || progressLoading}
         className="-mx-8"
         renderItem={() => {
           return (
