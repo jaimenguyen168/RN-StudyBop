@@ -6,6 +6,13 @@ export enum PracticePath {
   QA = "questionAnswer",
 }
 
+export interface PracticeOption {
+  name: string;
+  image: any;
+  icon: string;
+  path: PracticePath;
+}
+
 export const practiceOptions = [
   {
     name: "Quiz",

@@ -9,6 +9,7 @@ import CoursesProgress from "@/components/home/CoursesProgress";
 import { useFocusEffect } from "expo-router";
 import images from "@/constants/images";
 import Header from "@/components/home/Header";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
 const HomeContent = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -66,13 +67,7 @@ const HomeContent = () => {
   };
 
   if (loading || progressLoading) {
-    return (
-      <ActivityIndicator
-        size="large"
-        color="#E3562A"
-        className="flex h-full -mt-24 items-center justify-center"
-      />
-    );
+    return <LoadingIndicator />;
   }
 
   if (courses.length === 0) {
