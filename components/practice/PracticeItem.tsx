@@ -1,6 +1,7 @@
 import { Course, Quiz } from "@/types/type";
 import { PracticeOption, PracticePath } from "@/constants/options";
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -13,8 +14,8 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
 import images from "@/constants/images";
 import * as Progress from "react-native-progress";
-import Carousel from "@/components/ui/Carousel";
 import Button from "@/components/ui/Button";
+import { submitQuiz } from "@/libs/firebase";
 
 const PracticeItem = ({
   course,
@@ -33,11 +34,11 @@ const PracticeItem = ({
   };
 
   return (
-    <>
+    <View className="w-1/2 p-2">
       <TouchableOpacity
         onPress={handleItemPress}
-        className={`flex-1 flex items-center mt-8 rounded-3xl gap-2 p-4 mx-5 bg-white shadow-xl shadow-gray-200 ${
-          index % 2 === 0 ? "ml-12" : "mr-12"
+        className={`items-center mt-8 rounded-3xl gap-3 p-4 mx-4 bg-white shadow-xl shadow-gray-200 ${
+          index % 2 === 0 ? "ml-10" : "mr-10"
         }`}
       >
         <Image
@@ -60,7 +61,7 @@ const PracticeItem = ({
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
-    </>
+    </View>
   );
 };
 
@@ -82,7 +83,7 @@ const PracticeModal = ({
   const quizLength = course.quiz.length;
 
   const [correctNumber, setCorrectNumber] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleOnIndexChange = (current: number, correct: number) => {
     if (currentIndex === quizLength) {
@@ -93,7 +94,8 @@ const PracticeModal = ({
     setCorrectNumber((prev) => prev + correct);
   };
 
-  const progressBar = currentIndex / course.quiz.length;
+  const quizIndex = currentIndex + 1;
+  const progressBar = quizIndex / course.quiz.length;
 
   return (
     <Modal
@@ -113,7 +115,7 @@ const PracticeModal = ({
             </View>
 
             <Text className="font-rubikSemiBold text-xl text-ink-light">
-              {currentIndex} of {course.quiz.length}
+              {quizIndex} of {course.quiz.length}
             </Text>
 
             <TouchableOpacity
@@ -131,8 +133,10 @@ const PracticeModal = ({
 
         <View className="flex-1 flex items-center justify-center">
           <QuizzesContent
+            courseId={course.id}
             quizzes={course.quiz}
             onIndexChange={handleOnIndexChange}
+            setModalVisible={setModalVisible}
           />
         </View>
       </View>
@@ -141,16 +145,19 @@ const PracticeModal = ({
 };
 
 const QuizzesContent = ({
+  courseId,
   quizzes,
   onIndexChange,
+  setModalVisible,
 }: {
+  courseId: string;
   quizzes: Quiz[];
   onIndexChange: (current: number, correct: number) => void;
+  setModalVisible: (value: boolean) => void;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [correctIndex, setCorrectIndex] = useState<number | null>(null);
-
   const [correctNumber, setCorrectNumber] = useState(0);
 
   const flatListRef = useRef<FlatList>(null);
@@ -165,6 +172,7 @@ const QuizzesContent = ({
     setCorrectIndex(correctAnsIndex);
 
     const isAnswerCorrect = selectedIndex === correctAnsIndex ? 1 : 0;
+    setCorrectNumber((prev) => prev + isAnswerCorrect);
     onIndexChange(0, isAnswerCorrect);
   };
 
@@ -181,8 +189,15 @@ const QuizzesContent = ({
     onIndexChange(1, 0);
   };
 
-  const handleFinish = () => {
-    console.log("finish");
+  const handleFinish = async () => {
+    const result = await submitQuiz(courseId, correctNumber);
+
+    if (result.success) {
+      Alert.alert("Success", result.data);
+      setModalVisible(false);
+    } else {
+      Alert.alert("Error", result.error);
+    }
   };
 
   const isSelected = (index: number) => {

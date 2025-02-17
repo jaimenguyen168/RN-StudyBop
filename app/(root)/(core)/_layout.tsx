@@ -8,7 +8,6 @@ const CoreLayout = () => {
       <Stack.Screen name="course-details" />
       <Stack.Screen name="chapter-details" />
       <Stack.Screen name="practice" />
-      <Stack.Screen name="practice-details" />
     </Stack>
   );
 };

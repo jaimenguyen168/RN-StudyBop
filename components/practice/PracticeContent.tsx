@@ -6,7 +6,7 @@ import PracticeHeader from "@/components/practice/PracticeHeader";
 import PracticeItem from "@/components/practice/PracticeItem";
 
 interface PracticeProps {
-  courses?: Course[];
+  courses: Course[];
   option: PracticeOption;
 }
 

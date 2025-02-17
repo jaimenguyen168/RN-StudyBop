@@ -38,7 +38,9 @@ interface Course {
   description: string;
   flashcards: Flashcard[];
   qa: QA[];
+
   quiz: Quiz[];
+  correctCount: number;
 
   userId: string;
   dateCreated: Timestamp;

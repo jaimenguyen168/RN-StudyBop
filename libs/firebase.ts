@@ -5,14 +5,16 @@ import {
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
-import { Chapter, Course } from "@/types/type";
+import { Chapter, Course, Quiz } from "@/types/type";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDoc,
   onSnapshot,
   query,
+  serverTimestamp,
   setDoc,
   updateDoc,
   where,
@@ -200,6 +202,7 @@ export const addCourseForUser = async (course: Course): Promise<Result> => {
       ),
       {
         ...course,
+        lastUpdated: serverTimestamp(),
       },
     );
     return {
@@ -277,43 +280,6 @@ export const listenToCourseById = (
   );
 };
 
-export const markChapterCompleted = async (
-  courseId: string,
-  chapterName: string,
-): Promise<Result> => {
-  const uid = getUid();
-  if (!uid) return { success: false, error: "User not logged in" };
-
-  try {
-    const userCourseRef = doc(
-      db,
-      `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
-    );
-
-    const courseDoc = await getDoc(userCourseRef);
-
-    if (!courseDoc.exists()) {
-      return { success: false, error: "Course not found in user collection" };
-    }
-
-    const courseData = courseDoc.data();
-    const updatedChapters = courseData.chapters.map((chapter: Chapter) =>
-      chapter.chapterName === chapterName
-        ? { ...chapter, isCompleted: true }
-        : chapter,
-    );
-
-    await updateDoc(userCourseRef, { chapters: updatedChapters });
-
-    return {
-      success: true,
-      data: `You have completed chapter '${chapterName}'.`,
-    };
-  } catch (error: any) {
-    return { success: false, error: `${error.code} ${error.message}` };
-  }
-};
-
 export const listenToProgressCourses = (
   callback: (result: Result<Course[]>) => void,
 ) => {
@@ -349,4 +315,58 @@ export const listenToProgressCourses = (
       callback({ success: false, error: error.message });
     },
   );
+};
+
+export const markChapterCompleted = async (
+  courseId: string,
+  chapterName: string,
+): Promise<Result> => {
+  const uid = getUid();
+  if (!uid) return { success: false, error: "User not logged in" };
+
+  try {
+    const userCourseRef = doc(
+      db,
+      `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
+    );
+
+    await updateDoc(userCourseRef, {
+      chapters: arrayUnion({
+        chapterName,
+        isCompleted: true,
+      }),
+      lastUpdated: serverTimestamp(), // Updates lastUpdated timestamp
+    });
+
+    return {
+      success: true,
+      data: `You have completed chapter '${chapterName}'.`,
+    };
+  } catch (error: any) {
+    return { success: false, error: `${error.code} ${error.message}` };
+  }
+};
+
+export const submitQuiz = async (
+  courseId: string,
+  correctNumber: number,
+): Promise<Result> => {
+  const uid = getUid();
+  if (!uid) return { success: false, error: "User not logged in" };
+
+  try {
+    const courseRef = doc(
+      db,
+      `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
+    );
+
+    await updateDoc(courseRef, {
+      correctCount: correctNumber,
+      lastUpdated: serverTimestamp(),
+    });
+
+    return { success: true, data: `Quiz submitted successfully.` };
+  } catch (error: any) {
+    return { success: false, error: `${error.code} ${error.message}` };
+  }
 };
