@@ -181,6 +181,10 @@ const QuizzesContent = ({
     onIndexChange(1, 0);
   };
 
+  const handleFinish = () => {
+    console.log("finish");
+  };
+
   const isSelected = (index: number) => {
     return selectedIndex === index;
   };
@@ -244,7 +248,11 @@ const QuizzesContent = ({
 
       <View className="absolute bottom-16 flex-1 w-full px-16 items-center">
         {hasAnswered() ? (
-          <Button title="Next" onPress={handleNext} />
+          currentIndex === quizzes.length - 1 ? (
+            <Button title="Finish" onPress={handleFinish} />
+          ) : (
+            <Button title="Next" onPress={handleNext} />
+          )
         ) : (
           <Button
             title="Submit"

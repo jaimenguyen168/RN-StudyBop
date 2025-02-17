@@ -183,48 +183,93 @@ export const listenToCourses = (
   );
 };
 
-export const listenToCourseById = (
-  courseId: string,
-  callback: (result: Result<Course | null>) => void,
-) => {
-  if (!courseId) {
-    callback({ success: false, error: "Course ID is required" });
-    return () => {};
+export const addCourseForUser = async (course: Course): Promise<Result> => {
+  const uid = getUid();
+  if (!uid) {
+    return {
+      success: false,
+      error: "User not logged in",
+    };
   }
 
-  const courseRef = doc(db, collectionRef.courses, courseId);
-  const progressRef = doc(
+  try {
+    await setDoc(
+      doc(
+        db,
+        `${collectionRef.users}/${uid}/${collectionRef.courses}/${course.id}`,
+      ),
+      {
+        ...course,
+      },
+    );
+    return {
+      success: true,
+      data: "Added course successfully",
+    };
+  } catch (error: any) {
+    console.log(error);
+    return {
+      success: false,
+      error: `${error.code} ${error.message}`,
+    };
+  }
+};
+
+export const listenToCourseById = (
+  courseId: string,
+  callback: (
+    result: Result<{ course: Course | null; source: "user" | "courses" }>,
+  ) => void,
+) => {
+  const uid = getUid();
+  if (!uid) {
+    callback({ success: false, error: "User not logged in" });
+  }
+
+  const userCourseRef = doc(
     db,
-    `${collectionRef.users}/${getUid()}/${subCollectionRef.progress}/${courseId}`,
+    `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
   );
+  const courseRef = doc(db, `${collectionRef.courses}/${courseId}`);
 
   return onSnapshot(
-    courseRef,
-    async (docSnapshot) => {
-      if (!docSnapshot.exists()) {
-        callback({ success: false, error: "Course not found" });
-        return;
+    userCourseRef,
+    async (userDocSnapshot) => {
+      if (userDocSnapshot.exists()) {
+        const userCourseData = userDocSnapshot.data();
+
+        const userCourse: Course = {
+          id: userDocSnapshot.id,
+          ...userCourseData,
+        } as Course;
+
+        callback({
+          success: true,
+          data: { course: userCourse, source: "user" },
+        });
+      } else {
+        return onSnapshot(
+          courseRef,
+          (courseDocSnapshot) => {
+            if (!courseDocSnapshot.exists()) {
+              callback({ success: false, error: "Course not found" });
+              return;
+            }
+
+            const courseData = courseDocSnapshot.data();
+
+            const course: Course = {
+              id: courseDocSnapshot.id,
+              ...courseData,
+            } as Course;
+
+            callback({ success: true, data: { course, source: "courses" } });
+          },
+          (error) => {
+            callback({ success: false, error: error.message });
+          },
+        );
       }
-
-      const courseData = docSnapshot.data();
-
-      const progressSnapshot = await getDoc(progressRef);
-      const completedChapters = progressSnapshot.exists()
-        ? progressSnapshot.data() || {}
-        : {};
-
-      const updatedChapters = courseData.chapters.map((chapter: Chapter) => ({
-        ...chapter,
-        isCompleted: completedChapters[chapter.chapterName] || false,
-      })) as Chapter[];
-
-      const course: Course = {
-        id: docSnapshot.id,
-        ...courseData,
-        chapters: updatedChapters,
-      } as Course;
-
-      callback({ success: true, data: course });
     },
     (error) => {
       callback({ success: false, error: error.message });
@@ -240,15 +285,25 @@ export const markChapterCompleted = async (
   if (!uid) return { success: false, error: "User not logged in" };
 
   try {
-    const completionRef = doc(
+    const userCourseRef = doc(
       db,
-      `${collectionRef.users}/${uid}/${subCollectionRef.progress}/${courseId}`,
+      `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
     );
-    await setDoc(completionRef, { [chapterName]: true }, { merge: true });
 
-    updateDoc(doc(db, collectionRef.courses, courseId), {
-      lastUpdated: new Date(),
-    }).catch((error) => console.error("Failed to update lastUpdated:", error));
+    const courseDoc = await getDoc(userCourseRef);
+
+    if (!courseDoc.exists()) {
+      return { success: false, error: "Course not found in user collection" };
+    }
+
+    const courseData = courseDoc.data();
+    const updatedChapters = courseData.chapters.map((chapter: Chapter) =>
+      chapter.chapterName === chapterName
+        ? { ...chapter, isCompleted: true }
+        : chapter,
+    );
+
+    await updateDoc(userCourseRef, { chapters: updatedChapters });
 
     return {
       success: true,
@@ -261,56 +316,34 @@ export const markChapterCompleted = async (
 
 export const listenToProgressCourses = (
   callback: (result: Result<Course[]>) => void,
-): (() => void) => {
+) => {
   const uid = getUid();
   if (!uid) {
     callback({
       success: false,
       error: "User not logged in",
     });
-    return () => {};
   }
 
-  const progressRef = collection(
+  const userCoursesRef = collection(
     db,
-    `${collectionRef.users}/${uid}/${subCollectionRef.progress}`,
+    `${collectionRef.users}/${uid}/${collectionRef.courses}`,
   );
 
   return onSnapshot(
-    progressRef,
-    async (progressSnapshot) => {
-      if (progressSnapshot.empty) {
+    userCoursesRef,
+    async (userCoursesSnapshot) => {
+      if (userCoursesSnapshot.empty) {
         callback({ success: true, data: [] });
         return;
       }
 
-      const coursePromises = progressSnapshot.docs.map(async (progressDoc) => {
-        const courseId = progressDoc.id;
+      const courses = userCoursesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Course[];
 
-        const courseRef = doc(db, collectionRef.courses, courseId);
-        const courseSnapshot = await getDoc(courseRef);
-
-        if (courseSnapshot.exists()) {
-          const courseData = courseSnapshot.data();
-          const completedChapters = progressDoc.data() || {};
-
-          const updatedChapters = courseData.chapters.map(
-            (chapter: Chapter) => ({
-              ...chapter,
-              isCompleted: completedChapters[chapter.chapterName] || false,
-            }),
-          );
-
-          return {
-            id: courseSnapshot.id,
-            ...courseData,
-            chapters: updatedChapters,
-          } as Course;
-        }
-      });
-
-      const courses = await Promise.all(coursePromises);
-      callback({ success: true, data: courses as Course[] });
+      callback({ success: true, data: courses });
     },
     (error) => {
       callback({ success: false, error: error.message });

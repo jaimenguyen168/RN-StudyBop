@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { listenToCourseById } from "@/libs/firebase";
+import { addCourseForUser, listenToCourseById } from "@/libs/firebase";
 import { Course } from "@/types/type";
 import { imageAssets } from "@/constants/options";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
@@ -18,15 +18,16 @@ import Button from "@/components/ui/Button";
 const CourseDetails = () => {
   const { courseId } = useLocalSearchParams() as { courseId: string };
   const [course, setCourse] = useState<Course | null>(null);
+  const [isFromUser, setIsFromUser] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
-
       const unsubscribe = listenToCourseById(courseId, (result) => {
         if (result.success) {
-          setCourse(result.data);
+          setIsFromUser(result.data.source === "user");
+          setCourse(result.data.course);
         } else {
           Alert.alert("Error", result.error);
         }
@@ -43,8 +44,32 @@ const CourseDetails = () => {
     router.back();
   };
 
-  const handleStartLearning = () => {
-    console.log("Start learning");
+  const handleStartLearning = async () => {
+    setLoading(true);
+    const result = await addCourseForUser(course as Course);
+
+    if (result.success) {
+      Alert.alert("Success", result.data);
+      setIsFromUser(true);
+    } else {
+      Alert.alert("Error", result.error);
+    }
+
+    setLoading(false);
+  };
+
+  const handleKeepLearning = () => {
+    const chapter = course?.chapters.find((c) => !c.isCompleted);
+
+    if (chapter) {
+      router.push({
+        pathname: "/(root)/(core)/chapter-details",
+        params: {
+          courseId: courseId,
+          currentChapter: JSON.stringify(chapter),
+        },
+      });
+    }
   };
 
   const handleChapterPress = (chapterName: string) => {
@@ -76,8 +101,10 @@ const CourseDetails = () => {
       {course && (
         <CourseDetailsContent
           course={course}
+          isFromUser={isFromUser}
           onBackPress={handleGoBack}
           onStartLearningPress={handleStartLearning}
+          onKeepLearningPress={handleKeepLearning}
           onChapterPress={handleChapterPress}
         />
       )}
@@ -88,13 +115,17 @@ export default CourseDetails;
 
 const CourseDetailsContent = ({
   course,
+  isFromUser,
   onBackPress,
   onStartLearningPress,
+  onKeepLearningPress,
   onChapterPress,
 }: {
   course: Course;
+  isFromUser: boolean;
   onBackPress: () => void;
-  onStartLearningPress: () => void;
+  onStartLearningPress?: () => void;
+  onKeepLearningPress?: () => void;
   onChapterPress: (chapterName: string) => void;
 }) => {
   const bannerImage = course?.banner_image as keyof typeof imageAssets;
@@ -144,9 +175,16 @@ const CourseDetailsContent = ({
               </View>
 
               <Button
-                title="Start Learning"
-                buttonStyle="my-4"
-                onPress={onStartLearningPress}
+                title={isFromUser ? "Keep Learning" : "Start Learning"}
+                buttonStyle={`my-4 ${isFromUser ? "bg-white border border-primary" : "bg-primary"}`}
+                textStyle={
+                  isFromUser
+                    ? "text-primary font-rubikSemiBold text-lg"
+                    : "text-white font-rubikSemiBold text-lg"
+                }
+                onPress={
+                  isFromUser ? onKeepLearningPress : onStartLearningPress
+                }
               />
 
               <Text className="text-2xl font-rubikSemiBold mb-4">
@@ -159,6 +197,7 @@ const CourseDetailsContent = ({
           <TouchableOpacity
             onPress={() => onChapterPress(item.chapterName)}
             className="px-8 py-2"
+            disabled={!isFromUser}
           >
             <ChapterRowItem
               chapterName={item.chapterName as string}
@@ -189,7 +228,7 @@ const ChapterRowItem = ({
   index: number;
 }) => {
   return (
-    <View className="flex-row px-6 py-5 gap-4 border border-ink-darkGray rounded-3xl">
+    <View className="flex-row px-6 py-5 gap-4 bg-white rounded-3xl">
       <Text
         className={`text-lg flex-1 ${isCompleted ? "font-rubikLight" : "font-rubikMedium"}`}
         numberOfLines={1}

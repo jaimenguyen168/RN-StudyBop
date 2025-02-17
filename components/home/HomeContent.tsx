@@ -87,7 +87,9 @@ const HomeContent = () => {
           return (
             <View className="bg-transparent mt-16">
               <Header />
-              <CoursesProgress courses={progressCourses} />
+              {progressCourses.length > 0 && (
+                <CoursesProgress courses={progressCourses} />
+              )}
               <PracticeList />
               <CourseList courses={courses} />
               <View className="h-[150px]" />
