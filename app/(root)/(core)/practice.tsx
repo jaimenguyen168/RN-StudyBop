@@ -1,21 +1,9 @@
-import {
-  View,
-  Text,
-  Alert,
-  FlatList,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
-import { router, useLocalSearchParams } from "expo-router";
-import {
-  PracticeOption,
-  practiceOptions,
-  PracticePath,
-} from "@/constants/options";
+import { useLocalSearchParams } from "expo-router";
+import { PracticeOption, practiceOptions } from "@/constants/options";
 import { listenToProgressCourses } from "@/libs/firebase";
 import { Course } from "@/types/type";
-import { Ionicons } from "@expo/vector-icons";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import PracticeContent from "@/components/practice/PracticeContent";
 

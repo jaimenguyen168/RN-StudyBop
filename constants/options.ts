@@ -3,7 +3,7 @@ import images from "@/constants/images";
 export enum PracticePath {
   QUIZ = "quiz",
   FLASHCARDS = "flashcards",
-  QA = "questionAnswer",
+  QA = "Q&A",
 }
 
 export interface PracticeOption {

@@ -45,4 +45,4 @@ interface Course {
   lastUpdated?: Timestamp;
 }
 
-export type { Course, Chapter, Content };
+export type { Course, Chapter, Content, Quiz };

@@ -68,6 +68,7 @@ const Carousel = <T,>({
           horizontal
           showsHorizontalScrollIndicator={false}
           pagingEnabled
+          scrollEnabled={false}
           keyExtractor={(_, index) => index.toString()}
           onScroll={(event) => {
             const offsetX = event.nativeEvent.contentOffset.x;
