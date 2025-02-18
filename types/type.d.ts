@@ -47,4 +47,4 @@ interface Course {
   lastUpdated?: Timestamp;
 }
 
-export type { Course, Chapter, Content, Quiz };
+export type { Course, Chapter, Content, Quiz, Flashcard, QA };

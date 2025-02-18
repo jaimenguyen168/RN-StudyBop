@@ -20,12 +20,10 @@ import { router } from "expo-router";
 
 const QuizModal = ({
   course,
-  path,
   modalVisible,
   setModalVisible,
 }: {
   course: Course;
-  path: PracticePath;
   modalVisible: boolean;
   setModalVisible: (value: boolean) => void;
 }) => {
@@ -46,7 +44,7 @@ const QuizModal = ({
   };
 
   const quizIndex = currentIndex + 1;
-  const progressBar = quizIndex / course.quiz.length;
+  const progressBar = quizIndex / quizLength;
 
   return (
     <Modal
@@ -67,7 +65,7 @@ const QuizModal = ({
             </View>
 
             <Text className="font-rubikSemiBold text-xl text-ink-light">
-              {quizIndex} of {course.quiz.length}
+              {quizIndex} of {quizLength}
             </Text>
 
             <TouchableOpacity
