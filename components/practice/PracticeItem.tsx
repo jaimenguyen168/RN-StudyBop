@@ -18,12 +18,6 @@ import images from "@/constants/images";
 import * as Progress from "react-native-progress";
 import { router } from "expo-router";
 import Button from "@/components/ui/Button";
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
 import AnimatedCardFlip from "@/components/ui/AnimatedCardFlip";
 
 const PracticeItem = ({
@@ -60,7 +54,15 @@ const PracticeItem = ({
         </Text>
 
         {path === PracticePath.QUIZ && (
-          <Text className="text-primary font-rubikMedium">
+          <Text
+            className={`font-rubikMedium ${
+              course.correctCount === 0
+                ? "text-ink-darkGray"
+                : course.correctCount === course.quiz.length
+                  ? "text-success"
+                  : "text-primary"
+            }`}
+          >
             {course.correctCount}/{course.quiz.length}
           </Text>
         )}
@@ -108,7 +110,12 @@ const FlashcardModal = ({
       return;
     }
 
-    setCurrentIndex((prev) => prev + current);
+    setCurrentIndex(current);
+  };
+
+  const handleCloseModal = () => {
+    setCurrentIndex(0);
+    setModalVisible(false);
   };
 
   const flashcardIndex = currentIndex + 1;
@@ -129,10 +136,7 @@ const FlashcardModal = ({
               {flashcardIndex} of {flashcardsLength}
             </Text>
 
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              className="ml-4"
-            >
+            <TouchableOpacity onPress={handleCloseModal} className="ml-4">
               <Ionicons name="close" size={28} color="white" />
             </TouchableOpacity>
           </View>
@@ -162,6 +166,7 @@ const FlashcardsContent = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const screenWidth = Dimensions.get("screen").width;
 
   const handleNext = () => {
     if (currentIndex < flashcards.length - 1) {
@@ -171,7 +176,7 @@ const FlashcardsContent = ({
       flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
     }
 
-    onIndexChange(1);
+    onIndexChange(currentIndex);
   };
 
   const handleFinish = async () => {
@@ -188,18 +193,29 @@ const FlashcardsContent = ({
           horizontal
           showsHorizontalScrollIndicator={false}
           pagingEnabled
+          onScroll={(event) => {
+            const contentOffsetX = event.nativeEvent.contentOffset.x;
+            const index = Math.round(contentOffsetX / screenWidth);
+            setCurrentIndex(index);
+            onIndexChange(index);
+          }}
+          scrollEventThrottle={16}
           renderItem={({ item }) => {
             return (
               <View className="w-screen items-center">
                 <AnimatedCardFlip
                   frontContent={
-                    <View className="w-full h-[500px] items-center justify-center bg-white rounded-3xl">
-                      <Text className="text-lg">Front Side</Text>
+                    <View className="w-full h-[500px] items-center justify-center bg-warning rounded-3xl">
+                      <Text className="text-4xl font-rubikMedium text-center">
+                        {item.front}
+                      </Text>
                     </View>
                   }
                   backContent={
                     <View className="w-full h-[500px] items-center justify-center bg-white rounded-3xl">
-                      <Text className="text-lg">Back Side</Text>
+                      <Text className="text-3xl font-rubikLight text-center">
+                        {item.back}
+                      </Text>
                     </View>
                   }
                   className="my-4"

@@ -202,6 +202,7 @@ export const addCourseForUser = async (course: Course): Promise<Result> => {
       ),
       {
         ...course,
+        correctCount: 0,
         lastUpdated: serverTimestamp(),
       },
     );
