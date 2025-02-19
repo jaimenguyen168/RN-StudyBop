@@ -13,7 +13,7 @@ const PracticeList = () => {
 
   return (
     <View className="flex">
-      <View className="mb-2 mx-8">
+      <View className="mx-8">
         <Text className="font-rubikSemiBold text-2xl">Practice</Text>
       </View>
 

@@ -8,7 +8,7 @@ import CourseCardProgress from "@/components/home/CourseCardProgress";
 const CoursesProgress = ({ courses }: { courses: Course[] }) => {
   return (
     <View className="flex">
-      <View className="mb-2 mx-8">
+      <View className="mx-8">
         <Text className="font-rubikSemiBold text-2xl">Progress</Text>
       </View>
 

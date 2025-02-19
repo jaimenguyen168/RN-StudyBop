@@ -1,6 +1,4 @@
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "@/components/home/Header";
 import HomeContent from "@/components/home/HomeContent";
 import { Image, View } from "react-native";
 import images from "@/constants/images";

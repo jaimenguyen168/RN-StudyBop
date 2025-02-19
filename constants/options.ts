@@ -43,7 +43,7 @@ export const imageAssets = {
   "/banner6.png": images.banner6,
 };
 
-export const CourseCategory = [
+export const courseCategory = [
   "Tech & Coding",
   "Business & Finance",
   "Health & Fitness",

@@ -6,8 +6,6 @@ import { Course } from "@/types/type";
 import CourseList from "@/components/home/CourseList";
 import PracticeList from "@/components/home/PracticeList";
 import CoursesProgress from "@/components/home/CoursesProgress";
-import { useFocusEffect } from "expo-router";
-import images from "@/constants/images";
 import Header from "@/components/home/Header";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
@@ -85,7 +83,7 @@ const HomeContent = () => {
         renderItem={() => <></>}
         ListHeaderComponent={() => {
           return (
-            <View className="bg-transparent mt-16">
+            <View className="bg-transparent mt-16 gap-4">
               <Header />
               {progressCourses.length > 0 && (
                 <CoursesProgress courses={progressCourses} />
