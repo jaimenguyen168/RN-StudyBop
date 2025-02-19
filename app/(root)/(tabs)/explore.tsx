@@ -1,37 +1,14 @@
-import { View, Text, Alert, FlatList } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Course } from "@/types/type";
-import { listenToCourses } from "@/libs/firebase";
+import { View, Text, FlatList } from "react-native";
+import React from "react";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import CourseCardItem from "@/components/home/CourseCardItem";
 import { courseCategory } from "@/constants/options";
+import useCourses from "@/hooks/firebase";
 
 const Explore = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { courses, progressCourses, loading, progressLoading } = useCourses();
 
-  const fetchCourses = () => {
-    setLoading(true);
-    return listenToCourses(true, (result) => {
-      if (result.success) {
-        setCourses(result.data);
-      } else {
-        Alert.alert("Error", result.error);
-      }
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    const unsubscribeCourses = fetchCourses();
-    return () => {
-      if (typeof unsubscribeCourses === "function") {
-        unsubscribeCourses();
-      }
-    };
-  }, []);
-
-  if (loading) {
+  if (loading || progressLoading) {
     return <LoadingIndicator />;
   }
 
@@ -52,7 +29,11 @@ const Explore = () => {
             <View className="flex gap-6">
               {courseCategory.map((category, index) => {
                 const filteredCourses = courses.filter(
-                  (item) => item.category === category,
+                  (item) =>
+                    item.category === category &&
+                    !progressCourses.some(
+                      (progressItem) => progressItem.id === item.id,
+                    ),
                 );
 
                 if (filteredCourses.length > 0) {

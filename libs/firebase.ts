@@ -8,7 +8,6 @@ import { Result } from "@/types/util";
 import { Chapter, Course, UserProgress, Quiz } from "@/types/type";
 import {
   addDoc,
-  arrayUnion,
   collection,
   doc,
   getDoc,

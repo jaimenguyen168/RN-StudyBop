@@ -51,30 +51,38 @@ export const courseCategory = [
   "Arts & Creativity",
 ];
 
+export enum ProfilePath {
+  ADD_COURSE = "addCourse",
+  MY_COURSE = "myCourse",
+  COURSE_PROGRESS = "courseProgress",
+  MY_SUBSCRIPTIONS = "mySubscriptions",
+  LOGOUT = "logout",
+}
+
 export const profileMenu = [
   {
     name: "Add Course",
     icon: "add-outline",
-    path: "/addCourse",
+    path: ProfilePath.ADD_COURSE,
   },
   {
     name: "My Course",
     icon: "book",
-    path: "/(tabs)/home",
+    path: ProfilePath.MY_COURSE,
   },
   {
     name: "Course Progress",
     icon: "analytics-outline",
-    path: "/(tabs)/progress",
+    path: ProfilePath.COURSE_PROGRESS,
   },
   {
-    name: "My Subscription",
+    name: "My Subscriptions",
     icon: "shield-checkmark",
-    path: "",
+    path: ProfilePath.MY_SUBSCRIPTIONS,
   },
   {
     name: "Logout",
     icon: "log-out",
-    path: "/login",
+    path: ProfilePath.LOGOUT,
   },
 ];

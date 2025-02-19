@@ -1,64 +1,22 @@
 import {
   View,
-  Text,
   FlatList,
-  Alert,
   Image,
-  TouchableOpacity,
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import {
-  listenToLast7DaysProgress,
-  listenToProgressCourses,
-} from "@/libs/firebase";
-import { Course } from "@/types/type";
+import React from "react";
 import images from "@/constants/images";
-import { Octicons } from "@expo/vector-icons";
-import { imageAssets } from "@/constants/options";
-import * as Progress from "react-native-progress";
 import WeeklyTimeChart from "@/components/progress/WeeklyTimeChart";
 import NoCourses from "@/components/home/NoCourses";
 import { router } from "expo-router";
 import ProgressCardItem from "@/components/progress/ProgressCardItem";
 import ProgressHeader from "@/components/progress/ProgressHeader";
+import useCourses from "@/hooks/firebase";
 
 const ProgressTab = () => {
-  const [progressCourses, setProgressCourses] = useState<Course[]>([]);
-  const [progressLoading, setProgressLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchProgressCourses = () => {
-    setProgressLoading(true);
-    return listenToProgressCourses((result) => {
-      if (result.success) {
-        const sorted = result.data.sort(
-          (a, b) =>
-            (b.lastUpdated?.toDate()?.getTime() || 0) -
-            (a.lastUpdated?.toDate()?.getTime() || 0),
-        );
-        setProgressCourses(sorted);
-        setProgressLoading(false);
-      } else {
-        Alert.alert("Error", result.error);
-        setProgressLoading(false);
-      }
-    });
-  };
-
-  useEffect(() => {
-    const unsubscribeProgress = fetchProgressCourses();
-    return () => {
-      unsubscribeProgress();
-    };
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchProgressCourses();
-    setRefreshing(false);
-  };
+  const { progressCourses, progressLoading, onRefresh, refreshing } =
+    useCourses();
 
   const goToCourseDetails = (courseId: string) => {
     router.push({
@@ -73,7 +31,7 @@ const ProgressTab = () => {
 
   return (
     <View className="flex flex-1 pb-24">
-      <Image source={images.wave} className="h-screen w-full absolute top-0" />
+      <Image source={images.wave} className="h-screen absolute top-0" />
       <FlatList
         data={progressCourses}
         onRefresh={onRefresh}
@@ -102,7 +60,7 @@ const ProgressTab = () => {
         }}
         ListFooterComponent={() => <View className="h-[50px]" />}
         ListEmptyComponent={() => (
-          <View className="px-12">
+          <View className="px-12 mt-4">
             <NoCourses />
           </View>
         )}

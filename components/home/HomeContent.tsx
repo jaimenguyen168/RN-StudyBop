@@ -1,75 +1,25 @@
-import { ActivityIndicator, Alert, FlatList, Image, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, View } from "react-native";
+import React from "react";
 import NoCourses from "@/components/home/NoCourses";
-import { listenToCourses, listenToProgressCourses } from "@/libs/firebase";
-import { Course } from "@/types/type";
 import CourseList from "@/components/home/CourseList";
 import PracticeList from "@/components/home/PracticeList";
 import CoursesProgress from "@/components/home/CoursesProgress";
 import Header from "@/components/home/Header";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
+import useCourses from "@/hooks/firebase";
 
 const HomeContent = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [progressCourses, setProgressCourses] = useState<Course[]>([]);
-
-  const [loading, setLoading] = useState(true);
-  const [progressLoading, setProgressLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchCourses = () => {
-    setLoading(true);
-    return listenToCourses(false, (result) => {
-      if (result.success) {
-        setCourses(result.data);
-      } else {
-        Alert.alert("Error", result.error);
-      }
-      setLoading(false);
-    });
-  };
-
-  const fetchProgressCourses = () => {
-    setProgressLoading(true);
-    return listenToProgressCourses((result) => {
-      if (result.success) {
-        const sorted = result.data.sort(
-          (a, b) =>
-            (b.lastUpdated?.toDate()?.getTime() || 0) -
-            (a.lastUpdated?.toDate()?.getTime() || 0),
-        );
-        setProgressCourses(sorted);
-      } else {
-        Alert.alert("Error", result.error);
-      }
-      setProgressLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    const unsubscribeCourses = fetchCourses();
-    const unsubscribeProgress = fetchProgressCourses();
-    return () => {
-      unsubscribeProgress();
-      if (typeof unsubscribeCourses === "function") {
-        unsubscribeCourses();
-      }
-    };
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchCourses();
-    fetchProgressCourses();
-    setRefreshing(false);
-  };
+  const {
+    courses,
+    progressCourses,
+    loading,
+    progressLoading,
+    onRefresh,
+    refreshing,
+  } = useCourses({ fetchAll: false });
 
   if (loading || progressLoading) {
     return <LoadingIndicator />;
-  }
-
-  if (courses.length === 0) {
-    return <NoCourses />;
   }
 
   return (
@@ -88,8 +38,15 @@ const HomeContent = () => {
               {progressCourses.length > 0 && (
                 <CoursesProgress courses={progressCourses} />
               )}
-              <PracticeList />
-              <CourseList courses={courses} />
+              {progressCourses.length > 0 && <PracticeList />}
+              {courses.length > 0 && <CourseList courses={courses} />}
+
+              {courses.length === 0 && progressCourses.length === 0 && (
+                <View className="px-12">
+                  <NoCourses />
+                </View>
+              )}
+
               <View className="h-[150px]" />
             </View>
           );

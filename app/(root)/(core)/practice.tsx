@@ -6,6 +6,7 @@ import { listenToProgressCourses } from "@/libs/firebase";
 import { Course } from "@/types/type";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import PracticeContent from "@/components/practice/PracticeContent";
+import useCourses from "@/hooks/firebase";
 
 const Practice = () => {
   const { path } = useLocalSearchParams();
@@ -13,32 +14,8 @@ const Practice = () => {
     (item) => item.path === path,
   ) as PracticeOption;
 
-  const [progressCourses, setProgressCourses] = useState<Course[]>([]);
-  const [progressLoading, setProgressLoading] = useState(true);
-
-  const fetchProgressCourses = () => {
-    setProgressLoading(true);
-    return listenToProgressCourses((result) => {
-      if (result.success) {
-        const sorted = result.data.sort(
-          (a, b) =>
-            (b.lastUpdated?.toDate()?.getTime() || 0) -
-            (a.lastUpdated?.toDate()?.getTime() || 0),
-        );
-        setProgressCourses(sorted);
-      } else {
-        Alert.alert("Error", result.error);
-      }
-      setProgressLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    const unsubscribeProgress = fetchProgressCourses();
-    return () => {
-      unsubscribeProgress();
-    };
-  }, []);
+  const { progressCourses, progressLoading, onRefresh, refreshing } =
+    useCourses();
 
   if (progressLoading) {
     return <LoadingIndicator />;
