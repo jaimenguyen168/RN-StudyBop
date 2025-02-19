@@ -13,10 +13,43 @@ const Profile = () => {
 
   const handleItemPress = async (path: ProfilePath) => {
     switch (path) {
+      case ProfilePath.ADD_COURSE: {
+        handleAddCoursePress();
+        break;
+      }
+      case ProfilePath.MY_COURSES: {
+        handleGoToMyCourses();
+        break;
+      }
+      case ProfilePath.COURSE_PROGRESS: {
+        handleGoToCourseProgress();
+        break;
+      }
+      case ProfilePath.MY_SUBSCRIPTIONS: {
+        handleMySubscriptions();
+        break;
+      }
       case ProfilePath.LOGOUT: {
         await handleSignOut();
+        break;
       }
     }
+  };
+
+  const handleAddCoursePress = () => {
+    router.push("/(root)/(core)/add");
+  };
+
+  const handleGoToMyCourses = () => {
+    router.navigate("/(root)/(tabs)/home");
+  };
+
+  const handleGoToCourseProgress = () => {
+    router.navigate("/(root)/(tabs)/progress-tab");
+  };
+
+  const handleMySubscriptions = () => {
+    router.push("/(root)/(core)/subscription");
   };
 
   const handleSignOut = async () => {

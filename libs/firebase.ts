@@ -5,7 +5,7 @@ import {
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
-import { Chapter, Course, UserProgress, Quiz } from "@/types/type";
+import { Chapter, Course, UserProgress } from "@/types/type";
 import {
   addDoc,
   collection,
