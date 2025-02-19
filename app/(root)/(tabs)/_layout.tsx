@@ -50,7 +50,7 @@ const TabsLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="progress"
+        name="progress-tab"
         options={{
           tabBarLabel: "Progress",
           tabBarIcon: ({ color, size }) => (

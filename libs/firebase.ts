@@ -5,20 +5,24 @@ import {
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
-import { Chapter, Course, Quiz } from "@/types/type";
+import { Chapter, Course, UserProgress, Quiz } from "@/types/type";
 import {
   addDoc,
   arrayUnion,
   collection,
   doc,
   getDoc,
+  increment,
   onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from "@firebase/firestore";
+import { subDays, format } from "date-fns";
 
 const getUid = () => auth.currentUser?.uid;
 
@@ -331,13 +335,38 @@ export const markChapterCompleted = async (
       `${collectionRef.users}/${uid}/${collectionRef.courses}/${courseId}`,
     );
 
-    await updateDoc(userCourseRef, {
-      chapters: arrayUnion({
-        chapterName,
-        isCompleted: true,
-      }),
-      lastUpdated: serverTimestamp(), // Updates lastUpdated timestamp
+    const courseSnapshot = await getDoc(userCourseRef);
+    if (!courseSnapshot.exists())
+      return { success: false, error: "Course not found" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const localDate = today.toISOString().slice(0, 10);
+    const progressRef = doc(
+      db,
+      `${collectionRef.users}/${uid}/${subCollectionRef.progress}/${localDate}`,
+    );
+
+    const batch = writeBatch(db);
+
+    batch.update(userCourseRef, {
+      chapters: courseSnapshot
+        .data()
+        .chapters.map((chapter: Chapter) =>
+          chapter.chapterName === chapterName
+            ? { ...chapter, isCompleted: true }
+            : chapter,
+        ),
+      lastUpdated: serverTimestamp(),
     });
+
+    batch.set(
+      progressRef,
+      { chapterCount: increment(1), lastUpdated: serverTimestamp() },
+      { merge: true },
+    );
+
+    await batch.commit();
 
     return {
       success: true,
@@ -346,6 +375,47 @@ export const markChapterCompleted = async (
   } catch (error: any) {
     return { success: false, error: `${error.code} ${error.message}` };
   }
+};
+
+export const listenToLast7DaysProgress = (
+  callback: (result: Result<UserProgress[]>) => void,
+) => {
+  const uid = getUid();
+  if (!uid) return;
+
+  const progressRef = collection(db, `${collectionRef.users}/${uid}/progress`);
+
+  const today = new Date();
+  const last7Days = Array.from({ length: 7 }, (_, i) =>
+    format(subDays(today, 6 - i), "yyyy-MM-dd"),
+  );
+
+  const q = query(
+    progressRef,
+    where("__name__", ">=", last7Days[0]), // Start from the earliest date in range
+    orderBy("__name__", "asc"),
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const progressMap: Record<string, number> = {};
+
+      snapshot.forEach((doc) => {
+        progressMap[doc.id] = doc.data().chapterCount || 0;
+      });
+
+      const progress: UserProgress[] = last7Days.map((date) => ({
+        date,
+        chapterCount: progressMap[date] || 0,
+      }));
+
+      callback({ success: true, data: progress });
+    },
+    (error) => {
+      callback({ success: false, error: error.message });
+    },
+  );
 };
 
 export const submitQuiz = async (

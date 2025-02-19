@@ -47,4 +47,9 @@ interface Course {
   lastUpdated?: Timestamp;
 }
 
-export type { Course, Chapter, Content, Quiz, Flashcard, QA };
+interface UserProgress {
+  date: string;
+  chapterCount: number;
+}
+
+export type { Course, Chapter, Content, Quiz, Flashcard, QA, UserProgress };
