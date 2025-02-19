@@ -19,7 +19,7 @@ const HomeContent = () => {
 
   const fetchCourses = () => {
     setLoading(true);
-    return listenToCourses(true, (result) => {
+    return listenToCourses(false, (result) => {
       if (result.success) {
         setCourses(result.data);
       } else {

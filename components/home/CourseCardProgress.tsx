@@ -1,8 +1,9 @@
 import { Course } from "@/types/type";
 import { imageAssets } from "@/constants/options";
-import { Image, Text, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import * as Progress from "react-native-progress";
 import React from "react";
+import { router } from "expo-router";
 
 const CourseCardProgress = ({
   course,
@@ -19,8 +20,16 @@ const CourseCardProgress = ({
     (chapter) => chapter.isCompleted,
   ).length;
 
+  const goToCourseDetails = (courseId: string) => {
+    router.push({
+      pathname: "/(root)/(core)/course-details",
+      params: { courseId },
+    });
+  };
+
   return (
-    <View
+    <TouchableOpacity
+      onPress={() => goToCourseDetails(course.id)}
       className={`items-start justify-start w-[280px] h-auto gap-4 bg-white p-3 pb-6 rounded-2xl ${isFirst ? "ml-8" : "ml-3"} ${isLast ? "mr-8" : "mr-3"}`}
     >
       <View className="flex-row gap-3 w-[250px]">
@@ -54,7 +63,7 @@ const CourseCardProgress = ({
           {course.chapters.length > 1 ? "Chapters" : "Chapter"} Completed
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

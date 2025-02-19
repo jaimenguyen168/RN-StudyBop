@@ -28,10 +28,12 @@ import highOnCouch from "@/assets/images/high-on-couch.png";
 import hello1 from "@/assets/images/hello1.png";
 import hello2 from "@/assets/images/hello2.png";
 import tryAgain from "@/assets/images/try-again.png";
+import icon from "@/assets/images/icon.png";
 
 import loading from "@/assets/images/loading.gif";
 
 export default {
+  icon,
   banner1,
   banner2,
   banner3,
