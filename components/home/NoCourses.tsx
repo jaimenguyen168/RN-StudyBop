@@ -14,7 +14,7 @@ const NoCourses = () => {
       <View className="gap-2 items-center">
         <Image source={images.book} className="size-64" resizeMode="contain" />
         <Text className="font-rubikSemiBold text-3xl text-center">
-          You have no courses
+          You have no courses yet
         </Text>
       </View>
 

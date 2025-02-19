@@ -14,14 +14,14 @@ const Header = () => {
         <Text className="text-2xl font-rubikSemiBold">
           Hello, <Text className="text-ink-light">{user?.displayName}</Text>
         </Text>
-        <Text className="text-lg font-rubik">Let's get started</Text>
+        <Text className="text-lg font-rubikMedium">Let's get started</Text>
       </View>
 
       <TouchableOpacity
         onPress={handleSettingsPress}
         className="p-2 -mr-2 bg-transparent"
       >
-        <Octicons name="gear" size={28} color="#78746D" />
+        <Octicons name="gear" size={28} color="#1E3A8A" />
       </TouchableOpacity>
     </View>
   );
