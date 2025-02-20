@@ -6,7 +6,7 @@ import PracticeList from "@/components/home/PracticeList";
 import CoursesProgress from "@/components/home/CoursesProgress";
 import Header from "@/components/home/Header";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
-import useCourses from "@/hooks/firebase";
+import { useCourses } from "@/hooks/firebase";
 
 const HomeContent = () => {
   const {

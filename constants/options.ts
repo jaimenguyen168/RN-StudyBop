@@ -52,7 +52,7 @@ export const courseCategory = [
 ];
 
 export enum ProfilePath {
-  ADD_COURSE = "addCourse",
+  CREATE_COURSE = "createCourse",
   MY_COURSES = "myCourses",
   COURSE_PROGRESS = "courseProgress",
   MY_SUBSCRIPTIONS = "mySubscriptions",
@@ -61,9 +61,9 @@ export enum ProfilePath {
 
 export const profileMenu = [
   {
-    name: "Add Course",
+    name: "Create a Course",
     icon: "add-outline",
-    path: ProfilePath.ADD_COURSE,
+    path: ProfilePath.CREATE_COURSE,
   },
   {
     name: "My Courses",

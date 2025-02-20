@@ -52,4 +52,23 @@ interface UserProgress {
   chapterCount: number;
 }
 
-export type { Course, Chapter, Content, Quiz, Flashcard, QA, UserProgress };
+interface AppUser {
+  uid: string;
+  email: string;
+  fullName: string;
+  photoURL?: string;
+  dateCreated?: Timestamp;
+  lastUpdated?: Timestamp;
+  isPremium?: boolean;
+}
+
+export type {
+  Course,
+  Chapter,
+  Content,
+  Quiz,
+  Flashcard,
+  QA,
+  UserProgress,
+  AppUser,
+};

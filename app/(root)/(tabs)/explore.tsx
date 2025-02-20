@@ -3,7 +3,7 @@ import React from "react";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import CourseCardItem from "@/components/home/CourseCardItem";
 import { courseCategory } from "@/constants/options";
-import useCourses from "@/hooks/firebase";
+import { useCourses } from "@/hooks/firebase";
 
 const Explore = () => {
   const { courses, progressCourses, loading, progressLoading } = useCourses();

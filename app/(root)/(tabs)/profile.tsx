@@ -7,13 +7,15 @@ import { profileMenu, ProfilePath } from "@/constants/options";
 import ProfileRowItem from "@/components/profile/ProfileRowItem";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useUser } from "@/hooks/firebase";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
 const Profile = () => {
-  const { user } = useAuthContext();
+  const { user, loading } = useUser();
 
   const handleItemPress = async (path: ProfilePath) => {
     switch (path) {
-      case ProfilePath.ADD_COURSE: {
+      case ProfilePath.CREATE_COURSE: {
         handleAddCoursePress();
         break;
       }
@@ -37,6 +39,11 @@ const Profile = () => {
   };
 
   const handleAddCoursePress = () => {
+    if (!user.isPremium) {
+      Alert.alert("Sorry", "You need to be a premium user to create courses");
+      return;
+    }
+
     router.push("/(root)/(core)/add");
   };
 
@@ -63,6 +70,10 @@ const Profile = () => {
     }
   };
 
+  if (loading) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <View className="flex-1">
       <View className="justify-center px-8 mt-20">
@@ -72,7 +83,7 @@ const Profile = () => {
       <View className="flex items-center">
         <Image source={images.icon} className="size-56" />
 
-        <Text className="font-rubikBold text-2xl">{user?.displayName}</Text>
+        <Text className="font-rubikBold text-2xl">{user?.fullName}</Text>
         <Text className="font-rubikLight text-ink-darkGray text-xl">
           {user?.email}
         </Text>

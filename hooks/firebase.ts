@@ -1,9 +1,39 @@
 import { Course } from "@/types/type";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { listenToCourses, listenToProgressCourses } from "@/libs/firebase";
+import {
+  listenToCourses,
+  listenToProgressCourses,
+  listenToUser,
+} from "@/libs/firebase";
 
-const useCourses = ({ fetchAll = true }: { fetchAll?: boolean } = {}) => {
+export const useUser = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = listenToUser((result) => {
+      if (result.success) {
+        setUser(result.data);
+      } else {
+        Alert.alert("Error", result.error);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [listenToUser]);
+
+  return { user, loading };
+};
+
+export const useCourses = ({
+  fetchAll = true,
+}: { fetchAll?: boolean } = {}) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [progressCourses, setProgressCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,5 +98,3 @@ const useCourses = ({ fetchAll = true }: { fetchAll?: boolean } = {}) => {
     refreshing,
   };
 };
-
-export default useCourses;

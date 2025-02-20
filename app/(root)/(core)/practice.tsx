@@ -4,7 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { PracticeOption, practiceOptions } from "@/constants/options";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import PracticeContent from "@/components/practice/PracticeContent";
-import useCourses from "@/hooks/firebase";
+import { useCourses } from "@/hooks/firebase";
 
 const Practice = () => {
   const { path } = useLocalSearchParams();

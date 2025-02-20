@@ -12,7 +12,7 @@ import NoCourses from "@/components/home/NoCourses";
 import { router } from "expo-router";
 import ProgressCardItem from "@/components/progress/ProgressCardItem";
 import ProgressHeader from "@/components/progress/ProgressHeader";
-import useCourses from "@/hooks/firebase";
+import { useCourses } from "@/hooks/firebase";
 
 const ProgressTab = () => {
   const { progressCourses, progressLoading, onRefresh, refreshing } =

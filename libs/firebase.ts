@@ -5,7 +5,7 @@ import {
   updateProfile,
 } from "@firebase/auth";
 import { Result } from "@/types/util";
-import { Chapter, Course, UserProgress } from "@/types/type";
+import { AppUser, Chapter, Course, UserProgress } from "@/types/type";
 import {
   addDoc,
   collection,
@@ -47,7 +47,10 @@ export const signUp = async (
       password,
     );
 
-    await updateProfile(userCredential.user, { displayName: name });
+    await Promise.all([
+      updateProfile(userCredential.user, { displayName: name }),
+      createUser(userCredential.user.uid, email, name),
+    ]);
 
     console.log("userCredential", userCredential);
 
@@ -101,6 +104,55 @@ export const signOut = async (): Promise<Result> => {
       error: `${error.code} ${error.message}`,
     };
   }
+};
+
+const createUser = async (uid: string, email: string, fullName: string) => {
+  try {
+    const user = {
+      uid,
+      email,
+      fullName,
+      dateCreated: new Date(),
+      lastUpdated: new Date(),
+      isPremium: false,
+    };
+    await setDoc(doc(db, `${collectionRef.users}/${uid}`), user);
+
+    console.log("createUser", user);
+  } catch (error: any) {
+    console.log("Error creating user", error);
+  }
+};
+
+export const listenToUser = (callback: (result: Result<AppUser>) => void) => {
+  const uid = getUid();
+  if (!uid) {
+    return {
+      success: false,
+      error: "User not logged in",
+    };
+  }
+
+  const userRef = doc(db, `${collectionRef.users}/${uid}`);
+
+  return onSnapshot(
+    userRef,
+    (snapshot) => {
+      callback({
+        success: true,
+        data: {
+          uid: snapshot.id,
+          ...snapshot.data(),
+        } as AppUser,
+      });
+    },
+    (error) => {
+      callback({
+        success: false,
+        error: `${error.code} ${error.message}`,
+      });
+    },
+  );
 };
 
 export const createCourses = async (courses: Course[]): Promise<Result> => {
