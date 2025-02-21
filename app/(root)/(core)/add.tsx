@@ -11,6 +11,10 @@ import { Course } from "@/types/type";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+const sanitizeJsonString = (jsonString: string) => {
+  return jsonString.replace(/\\[^\\"]/g, "\\\\");
+};
+
 const Add = () => {
   const [topics, setTopics] = useState<string[]>([]);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -66,7 +70,8 @@ const Add = () => {
       // wait for the response to be processed
       await Promise.resolve();
 
-      const result = JSON.parse(responseText);
+      const sanitizedText = sanitizeJsonString(responseText);
+      const result = JSON.parse(sanitizedText);
 
       console.log("result", result);
 

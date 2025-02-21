@@ -8,7 +8,7 @@ import { getFirestore } from "@firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
+  apiKey: "AIzaSyDW-bg1zam9YAf7-4lYheUAohcr4kZr4jg",
   authDomain: "studybop-a7a42.firebaseapp.com",
   projectId: "studybop-a7a42",
   storageBucket: "studybop-a7a42.firebasestorage.app",
